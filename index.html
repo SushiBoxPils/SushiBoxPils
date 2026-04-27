@@ -5,66 +5,335 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SushiBoxPils</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-body {
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
     font-family: 'Poppins', sans-serif;
-    background: #0b0b0b;
+    background: #050505;
     color: white;
 }
 
 header {
+    height: 110px;
+    padding: 20px 55px;
+    background: rgba(0,0,0,0.92);
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    padding: 20px 40px;
-    background: black;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-header h1 {
-    color: #e11d48;
+.logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-wrap img {
+    width: 260px;
+    max-height: 90px;
+    object-fit: contain;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 16px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+nav a:hover {
+    color: #e11d2e;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 15px 28px;
+    border-radius: 7px;
+    text-decoration: none;
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.btn-red {
+    background: #df1f2d;
+}
+
+.btn-border {
+    border: 1px solid #c56b35;
+    color: white;
 }
 
 .hero {
-    padding: 80px 40px;
-    text-align: center;
+    min-height: 680px;
+    background:
+        linear-gradient(90deg, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.80) 38%, rgba(0,0,0,0.20) 100%),
+        url('https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=1600&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center right;
+    padding: 70px 60px 35px;
+    display: flex;
+    align-items: center;
 }
 
-.hero h2 {
-    font-size: 50px;
+.hero-content {
+    max-width: 560px;
 }
 
-button {
-    background: #e11d48;
-    border: none;
-    padding: 15px 30px;
-    border-radius: 30px;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
+.hero-logo {
+    width: 310px;
+    margin-bottom: 15px;
 }
 
-.section {
-    padding: 60px 40px;
-}
-
-.menu-item {
-    border-bottom: 1px solid #333;
-    padding: 15px 0;
-}
-
-.gallery img {
-    width: 100%;
-    border-radius: 20px;
+.hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 78px;
+    line-height: 1;
     margin-bottom: 10px;
 }
 
+.hero h1 span {
+    color: #df1f2d;
+}
+
+.slogan {
+    color: #c9974c;
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-size: 15px;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+}
+
+.hero p {
+    font-size: 19px;
+    line-height: 1.8;
+    color: #e5e5e5;
+    margin-bottom: 30px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 40px;
+}
+
+.features-small {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    color: #ddd;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.features-small div {
+    color: #d77b3b;
+}
+
+.cards-section {
+    padding: 25px 55px 60px;
+    background: linear-gradient(180deg, #080808, #030303);
+}
+
+.service-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+    margin-bottom: 70px;
+}
+
+.service-card {
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 35px 22px;
+    text-align: center;
+    background: rgba(255,255,255,0.02);
+}
+
+.service-card .icon {
+    font-size: 36px;
+    color: #e3342f;
+    margin-bottom: 18px;
+}
+
+.service-card h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    text-transform: uppercase;
+}
+
+.service-card p {
+    color: #ddd;
+    line-height: 1.7;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.section-title h2 {
+    font-size: 32px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.line {
+    width: 70px;
+    height: 3px;
+    background: #df1f2d;
+    margin: 15px auto 0;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 26px;
+}
+
+.menu-card {
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #090909;
+    text-align: center;
+}
+
+.menu-card img {
+    width: 100%;
+    height: 155px;
+    object-fit: cover;
+}
+
+.menu-card-content {
+    padding: 22px 14px;
+}
+
+.menu-card h3 {
+    font-size: 17px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+}
+
+.menu-card p {
+    color: #ddd;
+    font-size: 14px;
+    min-height: 52px;
+}
+
+.price {
+    color: #ff2c2c;
+    font-size: 22px;
+    font-weight: 800;
+    margin-top: 15px;
+}
+
+.center {
+    text-align: center;
+    margin-top: 35px;
+}
+
+.footer-info {
+    margin-top: 60px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 35px;
+}
+
+.info-box h3 {
+    color: white;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    font-size: 16px;
+}
+
+.info-box p {
+    color: #cfcfcf;
+    line-height: 1.9;
+    font-size: 14px;
+}
+
+.info-icon {
+    color: #e3342f;
+    font-size: 34px;
+    margin-bottom: 14px;
+}
+
 footer {
-    background: black;
-    padding: 40px;
+    padding: 28px;
     text-align: center;
     color: #aaa;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    background: #050505;
+}
+
+@media (max-width: 1000px) {
+    header {
+        height: auto;
+        flex-direction: column;
+        gap: 18px;
+        padding: 18px;
+    }
+
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    nav a {
+        margin: 0;
+    }
+
+    .logo-wrap img {
+        width: 220px;
+    }
+
+    .hero {
+        padding: 50px 25px;
+        background-position: center;
+    }
+
+    .hero h1 {
+        font-size: 48px;
+    }
+
+    .hero-logo {
+        width: 230px;
+    }
+
+    .service-cards,
+    .menu-grid,
+    .footer-info {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+    }
 }
 </style>
 </head>
@@ -72,46 +341,172 @@ footer {
 <body>
 
 <header>
-    <h1>SushiBoxPils</h1>
-    <div>Čerstvé • Chutné • Kvalita</div>
+    <div class="logo-wrap">
+        <img src="logo.png" alt="SushiBoxPils Logo">
+    </div>
+
+    <nav>
+        <a href="#">Domů</a>
+        <a href="#menu">Menu</a>
+        <a href="#catering">Catering</a>
+        <a href="#onas">O nás</a>
+        <a href="#kontakt">Kontakt</a>
+    </nav>
+
+    <div class="header-actions">
+        <a class="btn btn-border" href="tel:+420777456789">☎ 777 456 789</a>
+        <a class="btn btn-red" href="tel:+420777456789">Objednat</a>
+    </div>
 </header>
 
 <section class="hero">
-    <h2>Prémiové sushi pro každou příležitost</h2>
-    <p>Takeaway • Narozeniny • Catering</p>
-    <button onclick="window.location.href='tel:+420777777777'">Zavolat</button>
+    <div class="hero-content">
+        <img class="hero-logo" src="logo.png" alt="SushiBoxPils Logo">
+
+        <h1>Sushi<span>Box</span>Pils</h1>
+
+        <div class="slogan">ČERSTVÉ SUSHI PRO KAŽDOU PŘÍLEŽITOST</div>
+
+        <p>
+            Prémiové sushi z těch nejčerstvějších surovin.<br>
+            Takeaway, oslavy, narozeniny i firemní akce.
+        </p>
+
+        <div class="hero-buttons">
+            <a class="btn btn-red" href="tel:+420777456789">☎ Zavolat</a>
+            <a class="btn btn-border" href="https://wa.me/420777456789">☘ WhatsApp</a>
+        </div>
+
+        <div class="features-small">
+            <div>🍃 Čerstvé suroviny</div>
+            <div>👨‍🍳 Ruční příprava</div>
+            <div>🚚 Rychlé vyzvednutí</div>
+        </div>
+    </div>
 </section>
 
-<section class="section">
-    <h2>Menu</h2>
+<section class="cards-section" id="catering">
 
-    <div class="menu-item">
-        <b>Dragon Roll</b> – losos, avokádo, kreveta<br>249 Kč
+    <div class="service-cards">
+        <div class="service-card">
+            <div class="icon">🛍️</div>
+            <h3>Takeaway</h3>
+            <p>Objednejte online a vyzvedněte si na provozovně.</p>
+        </div>
+
+        <div class="service-card">
+            <div class="icon">🎂</div>
+            <h3>Narozeniny</h3>
+            <p>Sushi boxy na oslavy a narozeninové party na míru.</p>
+        </div>
+
+        <div class="service-card">
+            <div class="icon">🍽️</div>
+            <h3>Catering</h3>
+            <p>Firemní akce, večírky a speciální události. Postaráme se o vše.</p>
+        </div>
+
+        <div class="service-card">
+            <div class="icon">🎁</div>
+            <h3>Party Boxy</h3>
+            <p>Výhodné sety různých velikostí pro každou příležitost.</p>
+        </div>
     </div>
 
-    <div class="menu-item">
-        <b>Salmon Nigiri</b> – 2 ks<br>89 Kč
+    <div class="section-title" id="menu">
+        <h2>Naše oblíbené</h2>
+        <div class="line"></div>
     </div>
 
-    <div class="menu-item">
-        <b>Party Box</b> – 48 ks<br>899 Kč
+    <div class="menu-grid">
+        <div class="menu-card">
+            <img src="https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=800&auto=format&fit=crop">
+            <div class="menu-card-content">
+                <h3>Dragon Roll</h3>
+                <p>Losos, avokádo, kreveta, tobiko</p>
+                <div class="price">249 Kč</div>
+            </div>
+        </div>
+
+        <div class="menu-card">
+            <img src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800&auto=format&fit=crop">
+            <div class="menu-card-content">
+                <h3>Salmon Nigiri</h3>
+                <p>2 ks</p>
+                <div class="price">89 Kč</div>
+            </div>
+        </div>
+
+        <div class="menu-card">
+            <img src="https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=800&auto=format&fit=crop">
+            <div class="menu-card-content">
+                <h3>California Roll</h3>
+                <p>Krab, avokádo, okurka, sezam</p>
+                <div class="price">149 Kč</div>
+            </div>
+        </div>
+
+        <div class="menu-card">
+            <img src="https://images.unsplash.com/photo-1611143669185-af224c5e3252?q=80&w=800&auto=format&fit=crop">
+            <div class="menu-card-content">
+                <h3>Sushi Mix 16</h3>
+                <p>16 ks mix sushi a maki</p>
+                <div class="price">399 Kč</div>
+            </div>
+        </div>
+
+        <div class="menu-card">
+            <img src="https://images.unsplash.com/photo-1615361200141-f45961202b4f?q=80&w=800&auto=format&fit=crop">
+            <div class="menu-card-content">
+                <h3>Party Box 48</h3>
+                <p>48 ks mix sushi a maki</p>
+                <div class="price">899 Kč</div>
+            </div>
+        </div>
     </div>
-</section>
 
-<section class="section gallery">
-    <h2>Galerie</h2>
-    <img src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c">
-    <img src="https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56">
-</section>
+    <div class="center">
+        <a class="btn btn-border" href="#kontakt">Zobrazit celé menu →</a>
+    </div>
 
-<section class="section">
-    <h2>Kontakt</h2>
-    <p>📞 +420 777 777 777</p>
-    <p>📍 Plzeň</p>
+    <div class="footer-info" id="kontakt">
+        <div class="info-box">
+            <div class="info-icon">📍</div>
+            <h3>Kde nás najdete</h3>
+            <p>Riegrova 123/45<br>301 00 Plzeň</p>
+            <br>
+            <a class="btn btn-border" href="#">Zobrazit na mapě</a>
+        </div>
+
+        <div class="info-box">
+            <div class="info-icon">🕒</div>
+            <h3>Otevírací doba</h3>
+            <p>Pondělí – Pátek &nbsp;&nbsp; 10:30 – 21:00</p>
+            <p>Sobota &nbsp;&nbsp; 11:00 – 21:00</p>
+            <p>Neděle &nbsp;&nbsp; 11:00 – 20:00</p>
+        </div>
+
+        <div class="info-box">
+            <div class="info-icon">📞</div>
+            <h3>Kontakt</h3>
+            <p>☎ 777 456 789</p>
+            <p>✉ info@sushiboxpils.cz</p>
+            <p>📷 @sushiboxpils</p>
+        </div>
+
+        <div class="info-box" id="onas">
+            <div class="info-icon">☆</div>
+            <h3>Proč SushiBoxPils?</h3>
+            <p>✓ Čerstvé a kvalitní suroviny</p>
+            <p>✓ Tradiční recepty s moderním přístupem</p>
+            <p>✓ Rychlá příprava a vyzvednutí</p>
+            <p>✓ Spokojenost zákazníků na prvním místě</p>
+        </div>
+    </div>
 </section>
 
 <footer>
-    © 2026 SushiBoxPils
+    © 2026 SushiBoxPils – Všechna práva vyhrazena.
 </footer>
 
 </body>
