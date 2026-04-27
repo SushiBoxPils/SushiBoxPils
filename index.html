@@ -21,25 +21,18 @@ body {
 }
 
 header {
-    height: 110px;
-    padding: 20px 55px;
-    background: rgba(0,0,0,0.92);
+    background: rgba(0,0,0,0.95);
+    padding: 18px 55px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid rgba(255,255,255,0.08);
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 100;
 }
 
-.logo-wrap {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.logo-wrap img {
+.header-logo {
     width: 260px;
     max-height: 90px;
     object-fit: contain;
@@ -48,7 +41,7 @@ header {
 nav a {
     color: white;
     text-decoration: none;
-    margin: 0 16px;
+    margin: 0 15px;
     font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
@@ -65,7 +58,7 @@ nav a:hover {
 
 .btn {
     display: inline-block;
-    padding: 15px 28px;
+    padding: 14px 26px;
     border-radius: 7px;
     text-decoration: none;
     color: white;
@@ -80,35 +73,34 @@ nav a:hover {
 
 .btn-border {
     border: 1px solid #c56b35;
-    color: white;
 }
 
 .hero {
-    min-height: 680px;
+    min-height: 690px;
     background:
-        linear-gradient(90deg, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.80) 38%, rgba(0,0,0,0.20) 100%),
+        linear-gradient(90deg, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.78) 38%, rgba(0,0,0,0.22) 100%),
         url('https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=1600&auto=format&fit=crop');
     background-size: cover;
     background-position: center right;
-    padding: 70px 60px 35px;
+    padding: 70px 60px;
     display: flex;
     align-items: center;
 }
 
 .hero-content {
-    max-width: 560px;
+    max-width: 570px;
 }
 
 .hero-logo {
     width: 310px;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
 .hero h1 {
     font-family: 'Playfair Display', serif;
     font-size: 78px;
     line-height: 1;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
 }
 
 .hero h1 span {
@@ -141,17 +133,13 @@ nav a:hover {
     display: flex;
     gap: 28px;
     flex-wrap: wrap;
-    color: #ddd;
+    color: #d77b3b;
     font-size: 13px;
     text-transform: uppercase;
 }
 
-.features-small div {
-    color: #d77b3b;
-}
-
 .cards-section {
-    padding: 25px 55px 60px;
+    padding: 35px 55px 60px;
     background: linear-gradient(180deg, #080808, #030303);
 }
 
@@ -195,7 +183,6 @@ nav a:hover {
 .section-title h2 {
     font-size: 32px;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
 .line {
@@ -263,7 +250,6 @@ nav a:hover {
 }
 
 .info-box h3 {
-    color: white;
     margin-bottom: 20px;
     text-transform: uppercase;
     font-size: 16px;
@@ -291,10 +277,13 @@ footer {
 
 @media (max-width: 1000px) {
     header {
-        height: auto;
         flex-direction: column;
-        gap: 18px;
+        gap: 16px;
         padding: 18px;
+    }
+
+    .header-logo {
+        width: 220px;
     }
 
     nav {
@@ -308,12 +297,13 @@ footer {
         margin: 0;
     }
 
-    .logo-wrap img {
-        width: 220px;
+    .header-actions {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     .hero {
-        padding: 50px 25px;
+        padding: 45px 25px;
         background-position: center;
     }
 
@@ -325,14 +315,14 @@ footer {
         width: 230px;
     }
 
+    .hero-buttons {
+        flex-direction: column;
+    }
+
     .service-cards,
     .menu-grid,
     .footer-info {
         grid-template-columns: 1fr;
-    }
-
-    .hero-buttons {
-        flex-direction: column;
     }
 }
 </style>
@@ -341,9 +331,7 @@ footer {
 <body>
 
 <header>
-    <div class="logo-wrap">
-        <img src="logo.png" alt="SushiBoxPils Logo">
-    </div>
+    <img class="header-logo" src="logo.png" alt="SushiBoxPils Logo">
 
     <nav>
         <a href="#">Domů</a>
@@ -374,7 +362,7 @@ footer {
 
         <div class="hero-buttons">
             <a class="btn btn-red" href="tel:+420777456789">☎ Zavolat</a>
-            <a class="btn btn-border" href="https://wa.me/420777456789">☘ WhatsApp</a>
+            <a class="btn btn-border" href="https://wa.me/420777456789">WhatsApp</a>
         </div>
 
         <div class="features-small">
@@ -420,7 +408,7 @@ footer {
 
     <div class="menu-grid">
         <div class="menu-card">
-            <img src="https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=800&auto=format&fit=crop">
+            <img src="https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=800&auto=format&fit=crop" alt="Dragon Roll">
             <div class="menu-card-content">
                 <h3>Dragon Roll</h3>
                 <p>Losos, avokádo, kreveta, tobiko</p>
@@ -429,7 +417,7 @@ footer {
         </div>
 
         <div class="menu-card">
-            <img src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800&auto=format&fit=crop">
+            <img src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800&auto=format&fit=crop" alt="Salmon Nigiri">
             <div class="menu-card-content">
                 <h3>Salmon Nigiri</h3>
                 <p>2 ks</p>
@@ -438,7 +426,7 @@ footer {
         </div>
 
         <div class="menu-card">
-            <img src="https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=800&auto=format&fit=crop">
+            <img src="https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=800&auto=format&fit=crop" alt="California Roll">
             <div class="menu-card-content">
                 <h3>California Roll</h3>
                 <p>Krab, avokádo, okurka, sezam</p>
@@ -447,7 +435,7 @@ footer {
         </div>
 
         <div class="menu-card">
-            <img src="https://images.unsplash.com/photo-1611143669185-af224c5e3252?q=80&w=800&auto=format&fit=crop">
+            <img src="https://images.unsplash.com/photo-1611143669185-af224c5e3252?q=80&w=800&auto=format&fit=crop" alt="Sushi Mix 16">
             <div class="menu-card-content">
                 <h3>Sushi Mix 16</h3>
                 <p>16 ks mix sushi a maki</p>
@@ -456,7 +444,7 @@ footer {
         </div>
 
         <div class="menu-card">
-            <img src="https://images.unsplash.com/photo-1615361200141-f45961202b4f?q=80&w=800&auto=format&fit=crop">
+            <img src="https://images.unsplash.com/photo-1615361200141-f45961202b4f?q=80&w=800&auto=format&fit=crop" alt="Party Box 48">
             <div class="menu-card-content">
                 <h3>Party Box 48</h3>
                 <p>48 ks mix sushi a maki</p>
@@ -481,9 +469,9 @@ footer {
         <div class="info-box">
             <div class="info-icon">🕒</div>
             <h3>Otevírací doba</h3>
-            <p>Pondělí – Pátek &nbsp;&nbsp; 10:30 – 21:00</p>
-            <p>Sobota &nbsp;&nbsp; 11:00 – 21:00</p>
-            <p>Neděle &nbsp;&nbsp; 11:00 – 20:00</p>
+            <p>Pondělí – Pátek: 10:30 – 21:00</p>
+            <p>Sobota: 11:00 – 21:00</p>
+            <p>Neděle: 11:00 – 20:00</p>
         </div>
 
         <div class="info-box">
@@ -506,7 +494,7 @@ footer {
 </section>
 
 <footer>
-    © 2026 SushiBoxPils – Všechna práva vyhrazena.
+    © 2026 SushiBoxPils – ČERSTVÉ SUSHI PRO KAŽDOU PŘÍLEŽITOST
 </footer>
 
 </body>
