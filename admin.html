@@ -8,55 +8,67 @@
 <style>
 *{box-sizing:border-box}
 body{font-family:Arial;background:#070707;color:white;margin:0}
-button{border:0;border-radius:8px;padding:8px 10px;font-weight:bold;cursor:pointer;color:white;background:#df1f2d;font-size:12px}
-input,textarea,select{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid #333;background:#111;color:white}
-
-#loginBox{max-width:400px;margin:80px auto;background:#111;padding:20px;border-radius:16px;text-align:center}
+h1,h2,h3{margin:0 0 12px}
+button{border:0;border-radius:10px;padding:12px 14px;font-weight:bold;cursor:pointer;color:white;background:#df1f2d}
+input,textarea,select{width:100%;padding:13px;margin:7px 0 12px;border-radius:10px;border:1px solid #333;background:#111;color:white}
+#loginBox{max-width:420px;margin:90px auto;background:#111;padding:26px;border-radius:18px;text-align:center;border:1px solid #333}
 #adminPanel{display:none}
-
-.topbar{background:#000;padding:12px;display:flex;justify-content:space-between}
-.container{padding:15px;max-width:1200px;margin:auto}
-
-.ordersGrid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-}
-
-.order{
-  border:1px solid #333;
-  border-radius:12px;
-  padding:10px;
-  background:#151515;
-}
-
-.orderTotal{font-size:18px;color:#c9974c}
-
-.orderActions{
-  display:flex;
-  gap:5px;
-  flex-wrap:wrap;
-  margin-top:8px;
-}
-
+.topbar{position:sticky;top:0;z-index:10;background:#000;border-bottom:1px solid #222;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logoTitle{color:#e11d2e;font-size:24px;font-weight:800}
+.container{padding:18px;max-width:1400px;margin:auto}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat{background:#111;border:1px solid #2b2b2b;border-radius:16px;padding:18px}
+.stat small{color:#aaa}
+.stat strong{display:block;font-size:28px;margin-top:8px;color:#c9974c}
+.panel{background:#101010;border:1px solid #2b2b2b;border-radius:18px;padding:18px}
+.notice{background:#181818;border:1px solid #333;padding:12px;border-radius:12px;margin-bottom:14px;color:#ddd}
+.upload{background:#c9974c;color:#000}
+.logout{background:#555}
+.confirm{background:#16a34a}
 .work{background:#ca8a04}
 .doneBtn{background:#2563eb}
 .ship{background:#7c3aed}
-.receiptBtn{background:#0f766e}
 .delete{background:#444}
+.cancel{background:#555}
+.item,.order{border:1px solid #333;border-radius:16px;padding:14px;margin:12px 0;background:#151515}
+.item img,#preview{width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-top:8px}
+.order.new{border-color:#df1f2d;background:#16090a}
+.order.preparing{border-color:#ca8a04}
+.order.done{border-color:#2563eb}
+.order.shipping{border-color:#7c3aed}
+.status{display:inline-block;padding:6px 10px;border-radius:20px;background:#7f1d1d;color:#fff;margin-bottom:10px;font-size:12px;font-weight:bold}
+.status.preparing{background:#92400e}
+.status.done{background:#1e3a8a}
+.status.shipping{background:#581c87}
+.orderHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.orderTotal{font-size:22px;color:#c9974c;font-weight:800}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.orderActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.orderActions button{padding:8px 10px;font-size:12px;border-radius:8px}
+hr{border:0;border-top:1px solid #333;margin:12px 0}
+.tabs{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.tab{background:#222}
+.tab.active{background:#df1f2d}
+.hidden{display:none}
 
-.menuItemsGrid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-}
+.menuItemsGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.menuItemsGrid .item{margin:0;padding:10px;border-radius:12px}
+.menuItemsGrid .item img{height:95px;max-height:95px;object-fit:cover}
+.menuItemsGrid .item h3{font-size:15px;margin-top:8px}
+.menuItemsGrid .item p{font-size:12px;color:#ccc;margin:5px 0}
+.menuItemsGrid .item b{color:#c9974c}
+.menuItemsGrid .actions{grid-template-columns:1fr 1fr;gap:6px}
+.menuItemsGrid .actions button{padding:8px;font-size:12px;border-radius:8px}
 
-.item{background:#151515;padding:8px;border-radius:10px}
-.item img{width:100%;height:80px;object-fit:cover}
-
-@media(max-width:800px){
-  .ordersGrid{grid-template-columns:1fr}
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr 1fr}
+  .topbar{flex-direction:column;align-items:stretch}
   .menuItemsGrid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:520px){
+  .grid{grid-template-columns:1fr}
+  .actions{grid-template-columns:1fr}
+  .menuItemsGrid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -64,142 +76,474 @@ input,textarea,select{width:100%;padding:10px;margin:6px 0;border-radius:8px;bor
 <body>
 
 <div id="loginBox">
-<h2>Admin Login</h2>
-<input id="email">
-<input id="password" type="password">
-<button onclick="login()">Login</button>
+  <h2>Admin Login</h2>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Heslo">
+  <button onclick="login()">Přihlásit</button>
 </div>
 
 <div id="adminPanel">
 
 <div class="topbar">
-<div>🍣 SushiBoxPils Admin</div>
-<button onclick="logout()">Logout</button>
+  <div class="logoTitle">🍣 SushiBoxPils Admin</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button onclick="enableSound()">🔔 Zapnout alarm</button>
+    <button class="logout" onclick="logout()">Odhlásit</button>
+  </div>
 </div>
 
 <div class="container">
 
-<h2>Objednávky</h2>
-<div id="ordersList" class="ordersGrid"></div>
+  <div class="notice">
+    Web khách và admin dùng chung Firebase. Menu lấy từ <b>products</b>, đơn hàng lưu vào <b>orders</b>.
+  </div>
 
-<h2>Menu / Upravit menu</h2>
-<div id="list" class="menuItemsGrid"></div>
+  <div class="grid">
+    <div class="stat"><small>Doanh thu hôm nay</small><strong><span id="todayRevenue">0</span> Kč</strong></div>
+    <div class="stat"><small>Đơn hôm nay</small><strong id="todayOrders">0</strong></div>
+    <div class="stat"><small>Đơn chờ nhận</small><strong id="newOrders">0</strong></div>
+    <div class="stat"><small>Tổng doanh thu</small><strong><span id="totalRevenue">0</span> Kč</strong></div>
+  </div>
 
-<h2>Přidat jídlo</h2>
-<input id="name" placeholder="Název">
-<input id="price" type="number" placeholder="Cena">
-<input id="img" placeholder="URL obrázku">
-<button onclick="addProduct()">Přidat</button>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('ordersTab', this)">Objednávky</button>
+    <button class="tab" onclick="showTab('menuTab', this)">Menu / Upravit menu</button>
+    <button class="tab" onclick="showTab('addTab', this)">Přidat jídlo</button>
+  </div>
+
+  <div id="ordersTab" class="panel">
+    <h2>Objednávky</h2>
+    <div id="ordersList">Načítám...</div>
+  </div>
+
+  <div id="menuTab" class="panel hidden">
+    <h2>Menu / Upravit menu</h2>
+    <div id="list" class="menuItemsGrid">Načítám...</div>
+  </div>
+
+  <div id="addTab" class="panel hidden">
+    <h2 id="formTitle">Přidat jídlo</h2>
+
+    <input id="name" placeholder="Název jídla">
+
+    <select id="category">
+      <option value="roll">Rolls</option>
+      <option value="nigiri">Nigiri</option>
+      <option value="set">Sety</option>
+      <option value="party">Party boxy</option>
+    </select>
+
+    <textarea id="desc" placeholder="Popis"></textarea>
+    <input id="price" type="number" placeholder="Cena Kč">
+
+    <h3>Obrázek</h3>
+    <input id="fileInput" type="file" accept="image/*">
+    <button class="upload" onclick="uploadImage()">Nahrát obrázek</button>
+    <p id="uploadStatus"></p>
+    <img id="preview" style="display:none">
+
+    <input id="img" placeholder="URL obrázku">
+
+    <button id="addBtn">Přidat jídlo</button>
+    <button id="cancelEditBtn" class="cancel hidden" onclick="cancelEdit()">Zrušit úpravu</button>
+  </div>
 
 </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const app = initializeApp({
+const firebaseConfig = {
   apiKey: "AIzaSyCECFacCTVZpt9EM5HyDF98cVSrJNrIw9A",
   authDomain: "sushiboxpils.firebaseapp.com",
-  projectId: "sushiboxpils"
-});
+  projectId: "sushiboxpils",
+  storageBucket: "sushiboxpils.firebasestorage.app",
+  messagingSenderId: "296051969254",
+  appId: "1:296051969254:web:cce432ad7060cbc32a3f27"
+};
 
+const IMGBB_API_KEY = "2e6fe874c4c5b44a0729722c86166f0d";
+
+const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-window.login = async ()=>{
-  await signInWithEmailAndPassword(auth,email.value,password.value);
+const productsRef = collection(db, "products");
+const ordersRef = collection(db, "orders");
+const ordersQuery = query(ordersRef, orderBy("createdAt", "desc"));
+
+let audioCtx = null;
+let soundEnabled = false;
+let firstOrdersLoad = true;
+let lastOrderCount = 0;
+let alarmInterval = null;
+let editingProductId = null;
+
+window.showTab = (tabId, btn)=>{
+  document.querySelectorAll(".panel").forEach(p=>p.classList.add("hidden"));
+  document.getElementById(tabId).classList.remove("hidden");
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  btn.classList.add("active");
 };
 
-window.logout = ()=>signOut(auth);
+window.enableSound = () => {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  soundEnabled = true;
+  playBeep(900,0,0.15);
+  alert("Alarm zapnut.");
+};
 
-onAuthStateChanged(auth,(u)=>{
-  loginBox.style.display=u?"none":"block";
-  adminPanel.style.display=u?"block":"none";
+function playBeep(freq, start, duration){
+  if(!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "square";
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
+  gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + start);
+  gain.gain.exponentialRampToValueAtTime(0.45, audioCtx.currentTime + start + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + start + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(audioCtx.currentTime + start);
+  osc.stop(audioCtx.currentTime + start + duration);
+}
+
+function playAlarmSound(){
+  if(!soundEnabled || !audioCtx) return;
+  for(let i = 0; i < 15; i++){
+    playBeep(i % 2 === 0 ? 900 : 1200, i * 0.35, 0.18);
+  }
+}
+
+function vibratePhone(){
+  if(navigator.vibrate){
+    navigator.vibrate([700,200,700,200,900]);
+  }
+}
+
+function startAlarm(){
+  if(alarmInterval) return;
+  playAlarmSound();
+  vibratePhone();
+  alarmInterval = setInterval(() => {
+    playAlarmSound();
+    vibratePhone();
+  }, 6000);
+}
+
+function stopAlarm(){
+  if(alarmInterval){
+    clearInterval(alarmInterval);
+    alarmInterval = null;
+  }
+}
+
+function notifyNewOrder(){
+  startAlarm();
+  alert("🚨 NOVÁ OBJEDNÁVKA!");
+}
+
+window.login = async () => {
+  try{
+    await signInWithEmailAndPassword(
+      auth,
+      document.getElementById("email").value,
+      document.getElementById("password").value
+    );
+  }catch{
+    alert("Chyba loginu");
+  }
+};
+
+window.logout = async () => {
+  stopAlarm();
+  await signOut(auth);
+};
+
+onAuthStateChanged(auth, (user)=>{
+  document.getElementById("loginBox").style.display = user ? "none":"block";
+  document.getElementById("adminPanel").style.display = user ? "block":"none";
 });
 
-function cleanPhone(p){
-  p=(p||"").replace(/\s/g,"").replace("+","");
-  if(p.startsWith("0")) p="420"+p.slice(1);
+window.uploadImage = async () => {
+  const file = document.getElementById("fileInput").files[0];
+  if(!file){ alert("Vyber obrázek"); return; }
+
+  document.getElementById("uploadStatus").innerText="Nahrávám...";
+
+  const formData=new FormData();
+  formData.append("image",file);
+
+  const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{
+    method:"POST",
+    body:formData
+  });
+
+  const data=await res.json();
+
+  if(data.success){
+    document.getElementById("img").value=data.data.url;
+    document.getElementById("preview").src=data.data.url;
+    document.getElementById("preview").style.display="block";
+    document.getElementById("uploadStatus").innerText="OK";
+  } else {
+    document.getElementById("uploadStatus").innerText="Chyba uploadu";
+  }
+};
+
+function resetForm(){
+  editingProductId = null;
+  document.getElementById("formTitle").innerText="Přidat jídlo";
+  document.getElementById("addBtn").innerText="Přidat jídlo";
+  document.getElementById("cancelEditBtn").classList.add("hidden");
+
+  document.getElementById("name").value="";
+  document.getElementById("category").value="roll";
+  document.getElementById("desc").value="";
+  document.getElementById("price").value="";
+  document.getElementById("img").value="";
+  document.getElementById("fileInput").value="";
+  document.getElementById("preview").style.display="none";
+  document.getElementById("uploadStatus").innerText="";
+}
+
+window.cancelEdit = resetForm;
+
+window.editProduct = (id, name, category, desc, price, img)=>{
+  editingProductId = id;
+
+  document.getElementById("formTitle").innerText="Upravit jídlo";
+  document.getElementById("addBtn").innerText="Uložit změny";
+  document.getElementById("cancelEditBtn").classList.remove("hidden");
+
+  document.getElementById("name").value=name || "";
+  document.getElementById("category").value=category || "roll";
+  document.getElementById("desc").value=desc || "";
+  document.getElementById("price").value=price || "";
+  document.getElementById("img").value=img || "";
+
+  if(img){
+    document.getElementById("preview").src=img;
+    document.getElementById("preview").style.display="block";
+  }
+
+  document.querySelector('[onclick*="addTab"]').click();
+};
+
+document.getElementById("addBtn").onclick = async ()=>{
+  const productName = document.getElementById("name").value.trim();
+  const productCategory = document.getElementById("category").value;
+  const productDesc = document.getElementById("desc").value.trim();
+  const productPrice = Number(document.getElementById("price").value);
+  const productImg = document.getElementById("img").value.trim();
+
+  if(!productName || !productPrice){
+    alert("Vyplň název a cenu");
+    return;
+  }
+
+  const data = {
+    name: productName,
+    category: productCategory,
+    desc: productDesc,
+    price: productPrice,
+    img: productImg,
+    updatedAt: serverTimestamp()
+  };
+
+  if(editingProductId){
+    await updateDoc(doc(db,"products",editingProductId), data);
+    alert("Jídlo upraveno.");
+  }else{
+    await addDoc(productsRef,{
+      ...data,
+      createdAt: serverTimestamp()
+    });
+    alert("Jídlo přidáno.");
+  }
+
+  resetForm();
+};
+
+window.removeProduct = async id=>{
+  if(confirm("Opravdu smazat jídlo?")){
+    await deleteDoc(doc(db,"products",id));
+  }
+};
+
+function cleanPhone(phone){
+  let p = String(phone || "").replace(/\s+/g,"").replace(/\+/g,"");
+  if(p.startsWith("0")){
+    p = "420" + p.substring(1);
+  }
   return p;
 }
 
-function sendWA(phone,text){
-  window.open("https://wa.me/"+cleanPhone(phone)+"?text="+encodeURIComponent(text));
+function getWhatsAppText(status){
+  if(status === "preparing"){
+    return "Dobrý den, vaše objednávka ze SushiBoxPils se právě připravuje. Děkujeme!";
+  }
+
+  if(status === "done"){
+    return "Dobrý den, vaše objednávka ze SushiBoxPils je hotová. Děkujeme!";
+  }
+
+  if(status === "shipping"){
+    return "Dobrý den, vaše objednávka ze SushiBoxPils je právě na cestě k vám. Děkujeme!";
+  }
+
+  return "Dobrý den, děkujeme za vaši objednávku ze SushiBoxPils.";
 }
 
-window.printReceipt=(o)=>{
-  const w=window.open("","");
-  let items="";
-  o.items.forEach(i=>{
-    items+=`<p>${i.qty}× ${i.name} - ${i.lineTotal} Kč</p>`;
+window.updateStatusAndWhatsApp = async (id, phone, status)=>{
+  await updateDoc(doc(db,"orders",id),{
+    status:status,
+    updatedAt:serverTimestamp()
   });
-  w.document.write(`
-  <body style="font-family:Arial">
-  <h2>SushiBoxPils</h2>
-  ${items}
-  <h3>${o.total} Kč</h3>
-  <script>window.print()<\/script>
-  </body>`);
+
+  stopAlarm();
+
+  const clean = cleanPhone(phone);
+  if(!clean || clean === "-"){
+    alert("Khách chưa nhập số điện thoại.");
+    return;
+  }
+
+  const text = getWhatsAppText(status);
+  window.open("https://wa.me/" + clean + "?text=" + encodeURIComponent(text), "_blank");
 };
 
-onSnapshot(collection(db,"orders"),snap=>{
-  ordersList.innerHTML="";
+window.deleteOrder = async id=>{
+  if(confirm("Opravdu smazat objednávku?")){
+    await deleteDoc(doc(db,"orders",id));
+    stopAlarm();
+  }
+};
+
+function isToday(createdAt){
+  if(!createdAt || !createdAt.toDate) return false;
+  const d = createdAt.toDate();
+  const now = new Date();
+  return d.getFullYear()===now.getFullYear() &&
+         d.getMonth()===now.getMonth() &&
+         d.getDate()===now.getDate();
+}
+
+function esc(str){
+  return String(str || "").replace(/'/g,"&#39;").replace(/"/g,"&quot;");
+}
+
+onSnapshot(productsRef,snap=>{
+  const list = document.getElementById("list");
+  list.innerHTML="";
+
+  if(snap.empty){
+    list.innerHTML="<p>Zatím žádné jídlo.</p>";
+    return;
+  }
+
   snap.forEach(d=>{
-    const o=d.data();
-
-    ordersList.innerHTML+=`
-    <div class="order">
-      <b>${o.customerName}</b>
-      <div class="orderTotal">${o.total} Kč</div>
-
-      <div class="orderActions">
-        <button class="work" onclick="updateStatus('${d.id}','preparing','${o.customerPhone}')">Nhận</button>
-        <button class="doneBtn" onclick="updateStatus('${d.id}','done','${o.customerPhone}')">Xong</button>
-        <button class="ship" onclick="updateStatus('${d.id}','shipping','${o.customerPhone}')">Ship</button>
-        <button class="receiptBtn" onclick='printReceipt(${JSON.stringify(o)})'>In</button>
-        <button class="delete" onclick="del('${d.id}')">X</button>
+    const i=d.data();
+    list.innerHTML+=`
+    <div class="item">
+      ${i.img?`<img src="${i.img}">`:""}
+      <h3>${i.name}</h3>
+      <p>${i.desc||""}</p>
+      <p><b>Kategorie:</b> ${i.category || "-"}</p>
+      <b>${i.price} Kč</b>
+      <div class="actions">
+        <button class="work" onclick="editProduct('${d.id}','${esc(i.name)}','${esc(i.category)}','${esc(i.desc)}','${i.price}','${esc(i.img)}')">Upravit</button>
+        <button class="delete" onclick="removeProduct('${d.id}')">Smazat</button>
       </div>
     </div>`;
   });
 });
 
-window.updateStatus=async(id,status,phone)=>{
-  await updateDoc(doc(db,"orders",id),{status});
+onSnapshot(ordersQuery,snap=>{
+  const ordersList = document.getElementById("ordersList");
+  ordersList.innerHTML="";
 
-  let text="";
-  if(status==="preparing") text="Objednávka se připravuje";
-  if(status==="done") text="Objednávka je hotová";
-  if(status==="shipping") text="Objednávka je na cestě";
+  let totalRevenue = 0;
+  let todayRevenue = 0;
+  let todayOrders = 0;
+  let newOrders = 0;
 
-  sendWA(phone,text);
-};
+  if(firstOrdersLoad){
+    lastOrderCount=snap.size;
+    firstOrdersLoad=false;
+  }else if(snap.size>lastOrderCount){
+    notifyNewOrder();
+    lastOrderCount=snap.size;
+  }else{
+    lastOrderCount=snap.size;
+  }
 
-window.del=id=>deleteDoc(doc(db,"orders",id));
+  if(snap.empty){
+    ordersList.innerHTML="<p>Zatím žádné objednávky.</p>";
+    stopAlarm();
+  }
 
-onSnapshot(collection(db,"products"),snap=>{
-  list.innerHTML="";
   snap.forEach(d=>{
-    const i=d.data();
-    list.innerHTML+=`
-    <div class="item">
-      <img src="${i.img}">
-      <b>${i.name}</b>
-      <div>${i.price} Kč</div>
-      <button onclick="removeProduct('${d.id}')">X</button>
+    const o=d.data();
+    const total = Number(o.total || 0);
+    const status = o.status || "new";
+
+    totalRevenue += total;
+
+    if(isToday(o.createdAt)){
+      todayRevenue += total;
+      todayOrders += 1;
+    }
+
+    if(status === "new") newOrders += 1;
+
+    let items="";
+    o.items?.forEach(i=>{
+      items+=`<p>${i.qty}× ${i.name} — ${i.lineTotal || (i.qty*i.price)} Kč</p>`;
+    });
+
+    let statusText = "ČEKÁ NA PŘIJETÍ";
+    if(status === "preparing") statusText = "PŘIPRAVUJE SE";
+    if(status === "done") statusText = "HOTOVO";
+    if(status === "shipping") statusText = "NA CESTĚ";
+
+    const phoneEsc = esc(o.customerPhone || "");
+
+    ordersList.innerHTML+=`
+    <div class="order ${status}">
+      <div class="orderHead">
+        <div>
+          <span class="status ${status}">${statusText}</span>
+          <h3>Objednávka</h3>
+        </div>
+        <div class="orderTotal">${total} Kč</div>
+      </div>
+
+      <p><b>Jméno:</b> ${o.customerName || "-"}</p>
+      <p><b>Telefon:</b> ${o.customerPhone || "-"}</p>
+      <p><b>Poznámka:</b> ${o.customerNote || "-"}</p>
+      <hr>
+      ${items}
+      <hr>
+
+      <div class="orderActions">
+        <button class="work" onclick="updateStatusAndWhatsApp('${d.id}','${phoneEsc}','preparing')">Přijmout / đang làm</button>
+        <button class="doneBtn" onclick="updateStatusAndWhatsApp('${d.id}','${phoneEsc}','done')">Đã làm xong</button>
+        <button class="ship" onclick="updateStatusAndWhatsApp('${d.id}','${phoneEsc}','shipping')">Đang vận chuyển</button>
+        <button class="delete" onclick="deleteOrder('${d.id}')">Smazat</button>
+      </div>
     </div>`;
   });
+
+  document.getElementById("todayRevenue").innerText = todayRevenue;
+  document.getElementById("todayOrders").innerText = todayOrders;
+  document.getElementById("newOrders").innerText = newOrders;
+  document.getElementById("totalRevenue").innerText = totalRevenue;
 });
-
-window.addProduct=()=>addDoc(collection(db,"products"),{
-  name:name.value,
-  price:Number(price.value),
-  img:img.value
-});
-
-window.removeProduct=id=>deleteDoc(doc(db,"products",id));
-
 </script>
+
 </body>
 </html>
