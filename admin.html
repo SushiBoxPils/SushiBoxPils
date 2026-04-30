@@ -14,9 +14,12 @@ button{background:#df1f2d;font-weight:bold;cursor:pointer}
 .item,.order{border:1px solid #444;border-radius:14px;padding:15px;margin:14px 0;background:#111}
 .item img,#preview{width:100%;max-height:220px;object-fit:cover;border-radius:10px}
 .delete{background:#444}
+.confirm{background:#16a34a}
 .upload{background:#c9974c;color:black}
 .logout{background:#555}
 .notice{background:#181818;border:1px solid #333;padding:12px;border-radius:10px;margin:12px 0;color:#ddd}
+.status{display:inline-block;padding:6px 10px;border-radius:20px;background:#7f1d1d;color:#fff;margin-bottom:8px}
+.status.done{background:#14532d}
 </style>
 </head>
 
@@ -35,7 +38,7 @@ button{background:#df1f2d;font-weight:bold;cursor:pointer}
 <button class="logout" onclick="logout()">Odhlásit</button>
 
 <div class="notice">
-  🔔 Po přihlášení klikni jednou na <b>Zapnout alarm</b>. Zvuk potom zazní jen při nové objednávce.
+  🔔 Bấm <b>Zapnout alarm</b> một lần. Khi có đơn mới, chuông kêu liên tục. Bấm <b>Potvrdit objednávku</b> để tắt chuông.
 </div>
 
 <button onclick="enableSound()">🔔 Zapnout alarm</button>
@@ -74,7 +77,7 @@ button{background:#df1f2d;font-weight:bold;cursor:pointer}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
@@ -99,14 +102,14 @@ let audioCtx = null;
 let soundEnabled = false;
 let firstOrdersLoad = true;
 let lastOrderCount = 0;
+let alarmInterval = null;
 
 window.enableSound = () => {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   soundEnabled = true;
 
-  // test ngắn 1 tiếng thôi, không lặp
   playBeep(900,0,0.15);
-  alert("Alarm zapnut. Teď bude zvuk jen při nové objednávce.");
+  alert("Alarm zapnut.");
 };
 
 function playBeep(freq, start, duration){
@@ -132,25 +135,40 @@ function playBeep(freq, start, duration){
 function playAlarmSound(){
   if(!soundEnabled || !audioCtx) return;
 
-  // kêu khoảng 2.3 giây rồi tự dừng
-  playBeep(900,0,0.25);
-  playBeep(900,0.35,0.25);
-  playBeep(1200,0.70,0.30);
-
-  playBeep(900,1.30,0.25);
-  playBeep(900,1.65,0.25);
-  playBeep(1200,2.00,0.30);
+  for(let i = 0; i < 15; i++){
+    const start = i * 0.35;
+    const freq = i % 2 === 0 ? 900 : 1200;
+    playBeep(freq, start, 0.18);
+  }
 }
 
 function vibratePhone(){
   if(navigator.vibrate){
-    navigator.vibrate([700,200,700,200,900]);
+    navigator.vibrate([700,200,700,200,900,200,900]);
+  }
+}
+
+function startAlarm(){
+  if(alarmInterval) return;
+
+  playAlarmSound();
+  vibratePhone();
+
+  alarmInterval = setInterval(() => {
+    playAlarmSound();
+    vibratePhone();
+  }, 6000);
+}
+
+function stopAlarm(){
+  if(alarmInterval){
+    clearInterval(alarmInterval);
+    alarmInterval = null;
   }
 }
 
 function notifyNewOrder(){
-  playAlarmSound();
-  vibratePhone();
+  startAlarm();
   alert("🚨 NOVÁ OBJEDNÁVKA!");
 }
 
@@ -162,7 +180,10 @@ window.login = async () => {
   }
 };
 
-window.logout = async () => await signOut(auth);
+window.logout = async () => {
+  stopAlarm();
+  await signOut(auth);
+};
 
 onAuthStateChanged(auth, (user)=>{
   loginBox.style.display = user ? "none":"block";
@@ -223,9 +244,20 @@ window.removeProduct = async id=>{
   }
 };
 
+window.confirmOrder = async id=>{
+  await updateDoc(doc(db,"orders",id),{
+    status:"confirmed",
+    confirmedAt:serverTimestamp()
+  });
+
+  stopAlarm();
+  alert("Objednávka potvrzena.");
+};
+
 window.deleteOrder = async id=>{
   if(confirm("Opravdu smazat objednávku?")){
     await deleteDoc(doc(db,"orders",id));
+    stopAlarm();
   }
 };
 
@@ -265,11 +297,14 @@ onSnapshot(ordersRef,snap=>{
 
   if(snap.empty){
     ordersList.innerHTML="<p>Zatím žádné objednávky.</p>";
+    stopAlarm();
     return;
   }
 
   snap.forEach(d=>{
     const o=d.data();
+    const isConfirmed = o.status === "confirmed";
+
     let items="";
     o.items?.forEach(i=>{
       items+=`<p>${i.qty}× ${i.name} — ${i.lineTotal || (i.qty*i.price)} Kč</p>`;
@@ -277,6 +312,9 @@ onSnapshot(ordersRef,snap=>{
 
     ordersList.innerHTML+=`
     <div class="order">
+      <span class="status ${isConfirmed ? "done" : ""}">
+        ${isConfirmed ? "POTVRZENO" : "NOVÁ OBJEDNÁVKA"}
+      </span>
       <h3>Objednávka</h3>
       <p><b>Jméno:</b> ${o.customerName || "-"}</p>
       <p><b>Telefon:</b> ${o.customerPhone || "-"}</p>
@@ -285,6 +323,8 @@ onSnapshot(ordersRef,snap=>{
       ${items}
       <hr>
       <b>Celkem: ${o.total || 0} Kč</b>
+
+      ${!isConfirmed ? `<button class="confirm" onclick="confirmOrder('${d.id}')">Potvrdit objednávku</button>` : ""}
       <button class="delete" onclick="deleteOrder('${d.id}')">Smazat objednávku</button>
     </div>`;
   });
