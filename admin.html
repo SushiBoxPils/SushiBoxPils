@@ -21,24 +21,18 @@ input,textarea,select{width:100%;padding:13px;margin:7px 0 12px;border-radius:10
 .container{padding:18px;max-width:1400px;margin:auto}
 
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
-
 .stat{background:#111;border:1px solid #2b2b2b;border-radius:16px;padding:18px}
 .stat small{color:#aaa}
 .stat strong{display:block;font-size:28px;margin-top:8px;color:#c9974c}
 
-.layout{display:grid;grid-template-columns:360px 1fr;gap:18px}
-
 .panel{background:#101010;border:1px solid #2b2b2b;border-radius:18px;padding:18px}
-
 .notice{background:#181818;border:1px solid #333;padding:12px;border-radius:12px;margin-bottom:14px;color:#ddd}
 
 .upload{background:#c9974c;color:#000}
 .logout{background:#555}
 .confirm{background:#16a34a}
 .delete{background:#444}
-.danger{background:#7f1d1d}
 
-/* ✅ MENU GRID */
 .menuGrid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -51,19 +45,26 @@ input,textarea,select{width:100%;padding:13px;margin:7px 0 12px;border-radius:10
   padding:10px;
   background:#151515;
   font-size:14px;
-  transition:0.2s;
 }
 
-.item:hover{
-  transform:scale(1.03);
-}
+.item h3{font-size:16px}
+.item p{color:#ccc;font-size:13px;min-height:34px}
+.item b{color:#c9974c;font-size:17px}
 
 .item img{
   width:100%;
-  max-height:140px;
+  height:130px;
   object-fit:cover;
   border-radius:12px;
   margin-bottom:8px;
+}
+
+#preview{
+  width:100%;
+  max-height:220px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-top:8px;
 }
 
 .order{border:1px solid #3a3a3a;border-radius:16px;padding:14px;margin:12px 0;background:#151515}
@@ -86,10 +87,10 @@ hr{border:0;border-top:1px solid #333;margin:12px 0}
 
 .hidden{display:none}
 
-/* 📱 Responsive */
 @media(max-width:900px){
   .grid{grid-template-columns:1fr 1fr}
   .menuGrid{grid-template-columns:repeat(2,1fr)}
+  .topbar{flex-direction:column;align-items:stretch}
 }
 
 @media(max-width:520px){
@@ -104,7 +105,7 @@ hr{border:0;border-top:1px solid #333;margin:12px 0}
 
 <div id="loginBox">
   <h2>Admin Login</h2>
-  <input id="email" placeholder="Email">
+  <input id="email" placeholder="Login">
   <input id="password" type="password" placeholder="Heslo">
   <button onclick="login()">Přihlásit</button>
 </div>
@@ -113,69 +114,281 @@ hr{border:0;border-top:1px solid #333;margin:12px 0}
 
 <div class="topbar">
   <div class="logoTitle">🍣 SushiBoxPils Admin</div>
-  <div style="display:flex;gap:8px">
-    <button onclick="enableSound()">🔔 Alarm</button>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button onclick="enableSound()">🔔 Zapnout alarm</button>
     <button class="logout" onclick="logout()">Odhlásit</button>
   </div>
 </div>
 
 <div class="container">
 
-<div class="tabs">
-  <button class="tab active" onclick="showTab('menuTab', this)">Menu</button>
-</div>
+  <div class="notice">
+    🔔 Bấm <b>Zapnout alarm</b> một lần. Có đơn mới → chuông kêu liên tục. Bấm <b>Potvrdit objednávku</b> để tắt chuông.
+  </div>
 
-<div id="menuTab" class="panel">
-  <h2>Moje menu</h2>
-  <div id="list">Načítám...</div>
-</div>
+  <div class="grid">
+    <div class="stat"><small>Doanh thu hôm nay</small><strong><span id="todayRevenue">0</span> Kč</strong></div>
+    <div class="stat"><small>Đơn hôm nay</small><strong id="todayOrders">0</strong></div>
+    <div class="stat"><small>Đơn chưa xác nhận</small><strong id="newOrders">0</strong></div>
+    <div class="stat"><small>Tổng doanh thu</small><strong><span id="totalRevenue">0</span> Kč</strong></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('ordersTab', this)">Objednávky</button>
+    <button class="tab" onclick="showTab('menuTab', this)">Menu</button>
+    <button class="tab" onclick="showTab('addTab', this)">Přidat jídlo</button>
+  </div>
+
+  <div id="ordersTab" class="panel">
+    <h2>Objednávky</h2>
+    <div id="ordersList">Načítám...</div>
+  </div>
+
+  <div id="menuTab" class="panel hidden">
+    <h2>Moje menu</h2>
+    <div id="list">Načítám...</div>
+  </div>
+
+  <div id="addTab" class="panel hidden">
+    <h2>Přidat jídlo</h2>
+
+    <input id="name" placeholder="Název jídla">
+
+    <select id="category">
+      <option value="roll">Rolls</option>
+      <option value="nigiri">Nigiri</option>
+      <option value="set">Sety</option>
+      <option value="party">Party boxy</option>
+    </select>
+
+    <textarea id="desc" placeholder="Popis"></textarea>
+    <input id="price" type="number" placeholder="Cena Kč">
+
+    <h3>Obrázek</h3>
+    <input id="fileInput" type="file" accept="image/*">
+    <button class="upload" onclick="uploadImage()">Nahrát obrázek</button>
+    <p id="uploadStatus"></p>
+    <img id="preview" style="display:none">
+
+    <input id="img" placeholder="URL obrázku">
+
+    <button id="addBtn">Přidat jídlo</button>
+  </div>
 
 </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCECFacCTVZpt9EM5HyDF98cVSrJNrIw9A",
   authDomain: "sushiboxpils.firebaseapp.com",
-  projectId: "sushiboxpils"
+  projectId: "sushiboxpils",
+  storageBucket: "sushiboxpils.firebasestorage.app",
+  messagingSenderId: "296051969254",
+  appId: "1:296051969254:web:cce432ad7060cbc32a3f27"
 };
+
+const IMGBB_API_KEY = "2e6fe874c4c5b44a0729722c86166f0d";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const productsRef = collection(db, "products");
+const ordersRef = collection(db, "orders");
 
-/* LOGIN DEMO */
+let audioCtx = null;
+let soundEnabled = false;
+let firstOrdersLoad = true;
+let lastOrderCount = 0;
+let alarmInterval = null;
+
 window.login = () => {
-  if(document.getElementById("email").value === "admin" &&
-     document.getElementById("password").value === "admin"){
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("adminPanel").style.display="block";
+  const user = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
+
+  if(user === "admin" && pass === "admin"){
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
   } else {
-    alert("Špatné údaje");
+    alert("Sai tài khoản hoặc mật khẩu");
   }
 };
 
 window.logout = () => {
-  document.getElementById("loginBox").style.display="block";
-  document.getElementById("adminPanel").style.display="none";
+  stopAlarm();
+  document.getElementById("loginBox").style.display = "block";
+  document.getElementById("adminPanel").style.display = "none";
 };
 
-window.showTab = (id,btn)=>{
+window.showTab = (tabId, btn)=>{
   document.querySelectorAll(".panel").forEach(p=>p.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
+  document.getElementById(tabId).classList.remove("hidden");
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   btn.classList.add("active");
 };
 
-/* LOAD MENU */
+window.enableSound = () => {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  soundEnabled = true;
+  playBeep(900,0,0.15);
+  alert("Alarm zapnut.");
+};
+
+function playBeep(freq, start, duration){
+  if(!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "square";
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
+  gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + start);
+  gain.gain.exponentialRampToValueAtTime(0.45, audioCtx.currentTime + start + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + start + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(audioCtx.currentTime + start);
+  osc.stop(audioCtx.currentTime + start + duration);
+}
+
+function playAlarmSound(){
+  if(!soundEnabled || !audioCtx) return;
+  for(let i = 0; i < 15; i++){
+    const start = i * 0.35;
+    const freq = i % 2 === 0 ? 900 : 1200;
+    playBeep(freq, start, 0.18);
+  }
+}
+
+function vibratePhone(){
+  if(navigator.vibrate){
+    navigator.vibrate([700,200,700,200,900,200,900]);
+  }
+}
+
+function startAlarm(){
+  if(alarmInterval) return;
+  playAlarmSound();
+  vibratePhone();
+  alarmInterval = setInterval(() => {
+    playAlarmSound();
+    vibratePhone();
+  }, 6000);
+}
+
+function stopAlarm(){
+  if(alarmInterval){
+    clearInterval(alarmInterval);
+    alarmInterval = null;
+  }
+}
+
+function notifyNewOrder(){
+  startAlarm();
+  alert("🚨 NOVÁ OBJEDNÁVKA!");
+}
+
+window.uploadImage = async () => {
+  const file = document.getElementById("fileInput").files[0];
+  if(!file){ alert("Vyber obrázek"); return; }
+
+  document.getElementById("uploadStatus").innerText="Nahrávám...";
+
+  const formData=new FormData();
+  formData.append("image",file);
+
+  try{
+    const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{
+      method:"POST",
+      body:formData
+    });
+
+    const data=await res.json();
+
+    if(data.success){
+      document.getElementById("img").value=data.data.url;
+      document.getElementById("preview").src=data.data.url;
+      document.getElementById("preview").style.display="block";
+      document.getElementById("uploadStatus").innerText="Upload OK";
+    } else {
+      document.getElementById("uploadStatus").innerText="Chyba uploadu";
+    }
+  }catch(e){
+    document.getElementById("uploadStatus").innerText="Chyba uploadu";
+  }
+};
+
+document.getElementById("addBtn").onclick = async ()=>{
+  const productName = document.getElementById("name").value.trim();
+  const productCategory = document.getElementById("category").value;
+  const productDesc = document.getElementById("desc").value.trim();
+  const productPrice = Number(document.getElementById("price").value);
+  const productImg = document.getElementById("img").value.trim();
+
+  if(!productName || !productPrice){
+    alert("Vyplň název a cenu");
+    return;
+  }
+
+  await addDoc(productsRef,{
+    name: productName,
+    category: productCategory,
+    desc: productDesc,
+    price: productPrice,
+    img: productImg,
+    createdAt: serverTimestamp()
+  });
+
+  document.getElementById("name").value="";
+  document.getElementById("desc").value="";
+  document.getElementById("price").value="";
+  document.getElementById("img").value="";
+  document.getElementById("fileInput").value="";
+  document.getElementById("preview").style.display="none";
+  document.getElementById("uploadStatus").innerText="";
+  alert("Jídlo přidáno.");
+};
+
+window.removeProduct = async id=>{
+  if(confirm("Opravdu smazat jídlo?")){
+    await deleteDoc(doc(db,"products",id));
+  }
+};
+
+window.confirmOrder = async id=>{
+  await updateDoc(doc(db,"orders",id),{
+    status:"confirmed",
+    confirmedAt:serverTimestamp()
+  });
+  stopAlarm();
+};
+
+window.deleteOrder = async id=>{
+  if(confirm("Opravdu smazat objednávku?")){
+    await deleteDoc(doc(db,"orders",id));
+    stopAlarm();
+  }
+};
+
+function isToday(createdAt){
+  if(!createdAt || !createdAt.toDate) return false;
+  const d = createdAt.toDate();
+  const now = new Date();
+  return d.getFullYear()===now.getFullYear() &&
+         d.getMonth()===now.getMonth() &&
+         d.getDate()===now.getDate();
+}
+
 onSnapshot(productsRef,snap=>{
   const list = document.getElementById("list");
-  list.innerHTML = '<div class="menuGrid"></div>';
+  list.innerHTML='<div class="menuGrid"></div>';
   const grid = list.querySelector(".menuGrid");
+
+  if(snap.empty){
+    list.innerHTML="<p>Zatím žádné jídlo.</p>";
+    return;
+  }
 
   snap.forEach(d=>{
     const i=d.data();
@@ -185,8 +398,85 @@ onSnapshot(productsRef,snap=>{
       <h3>${i.name}</h3>
       <p>${i.desc||""}</p>
       <b>${i.price} Kč</b>
+      <br><br>
+      <button class="delete" onclick="removeProduct('${d.id}')">Smazat</button>
     </div>`;
   });
+});
+
+onSnapshot(ordersRef,snap=>{
+  const ordersList = document.getElementById("ordersList");
+  ordersList.innerHTML="";
+
+  let totalRevenue = 0;
+  let todayRevenue = 0;
+  let todayOrders = 0;
+  let newOrders = 0;
+
+  if(firstOrdersLoad){
+    lastOrderCount=snap.size;
+    firstOrdersLoad=false;
+  }else if(snap.size>lastOrderCount){
+    notifyNewOrder();
+    lastOrderCount=snap.size;
+  }else{
+    lastOrderCount=snap.size;
+  }
+
+  if(snap.empty){
+    ordersList.innerHTML="<p>Zatím žádné objednávky.</p>";
+    stopAlarm();
+  }
+
+  snap.forEach(d=>{
+    const o=d.data();
+    const total = Number(o.total || 0);
+    const isConfirmed = o.status === "confirmed";
+
+    totalRevenue += total;
+
+    if(isToday(o.createdAt)){
+      todayRevenue += total;
+      todayOrders += 1;
+    }
+
+    if(!isConfirmed) newOrders += 1;
+
+    let items="";
+    o.items?.forEach(i=>{
+      items+=`<p>${i.qty}× ${i.name} — ${i.lineTotal || (i.qty*i.price)} Kč</p>`;
+    });
+
+    ordersList.innerHTML+=`
+    <div class="order ${isConfirmed ? "confirmed" : "new"}">
+      <div class="orderHead">
+        <div>
+          <span class="status ${isConfirmed ? "done" : ""}">
+            ${isConfirmed ? "POTVRZENO" : "NOVÁ OBJEDNÁVKA"}
+          </span>
+          <h3>Objednávka</h3>
+        </div>
+        <div class="orderTotal">${total} Kč</div>
+      </div>
+
+      <p><b>Jméno:</b> ${o.customerName || "-"}</p>
+      <p><b>Telefon:</b> ${o.customerPhone || "-"}</p>
+      <p><b>Poznámka:</b> ${o.customerNote || "-"}</p>
+      <hr>
+      ${items || "<p>Žádné položky</p>"}
+      <hr>
+
+      <div class="actions">
+        ${!isConfirmed ? `<button class="confirm" onclick="confirmOrder('${d.id}')">Potvrdit objednávku</button>` : ""}
+        <button class="delete" onclick="deleteOrder('${d.id}')">Smazat objednávku</button>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById("todayRevenue").innerText = todayRevenue;
+  document.getElementById("todayOrders").innerText = todayOrders;
+  document.getElementById("newOrders").innerText = newOrders;
+  document.getElementById("totalRevenue").innerText = totalRevenue;
 });
 </script>
 
