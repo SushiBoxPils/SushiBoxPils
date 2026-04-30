@@ -6,20 +6,52 @@
 <title>Admin SushiBoxPils</title>
 
 <style>
-body{font-family:Arial;background:#070707;color:white;margin:0;padding:20px}
-#loginBox{max-width:400px;margin:100px auto;background:#111;padding:25px;border-radius:15px;text-align:center}
+*{box-sizing:border-box}
+body{font-family:Arial;background:#070707;color:white;margin:0}
+h1,h2,h3{margin:0 0 12px}
+button{border:0;border-radius:10px;padding:12px 14px;font-weight:bold;cursor:pointer;color:white;background:#df1f2d}
+input,textarea,select{width:100%;padding:13px;margin:7px 0 12px;border-radius:10px;border:1px solid #333;background:#111;color:white}
+#loginBox{max-width:420px;margin:90px auto;background:#111;padding:26px;border-radius:18px;text-align:center;border:1px solid #333}
 #adminPanel{display:none}
-input,textarea,select,button{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #333;background:#111;color:white;box-sizing:border-box}
-button{background:#df1f2d;font-weight:bold;cursor:pointer}
-.item,.order{border:1px solid #444;border-radius:14px;padding:15px;margin:14px 0;background:#111}
-.item img,#preview{width:100%;max-height:220px;object-fit:cover;border-radius:10px}
-.delete{background:#444}
-.confirm{background:#16a34a}
-.upload{background:#c9974c;color:black}
+.topbar{position:sticky;top:0;z-index:10;background:#000;border-bottom:1px solid #222;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logoTitle{color:#e11d2e;font-size:24px;font-weight:800}
+.container{padding:18px;max-width:1400px;margin:auto}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat{background:#111;border:1px solid #2b2b2b;border-radius:16px;padding:18px}
+.stat small{color:#aaa}
+.stat strong{display:block;font-size:28px;margin-top:8px;color:#c9974c}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:18px}
+.panel{background:#101010;border:1px solid #2b2b2b;border-radius:18px;padding:18px}
+.notice{background:#181818;border:1px solid #333;padding:12px;border-radius:12px;margin-bottom:14px;color:#ddd}
+.upload{background:#c9974c;color:#000}
 .logout{background:#555}
-.notice{background:#181818;border:1px solid #333;padding:12px;border-radius:10px;margin:12px 0;color:#ddd}
-.status{display:inline-block;padding:6px 10px;border-radius:20px;background:#7f1d1d;color:#fff;margin-bottom:8px}
+.confirm{background:#16a34a}
+.delete{background:#444}
+.danger{background:#7f1d1d}
+.item,.order{border:1px solid #333;border-radius:16px;padding:14px;margin:12px 0;background:#151515}
+.item img,#preview{width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-top:8px}
+.order{border-color:#3a3a3a}
+.order.new{border-color:#df1f2d;background:#16090a}
+.order.confirmed{border-color:#16a34a}
+.status{display:inline-block;padding:6px 10px;border-radius:20px;background:#7f1d1d;color:#fff;margin-bottom:10px;font-size:12px;font-weight:bold}
 .status.done{background:#14532d}
+.orderHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.orderTotal{font-size:22px;color:#c9974c;font-weight:800}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+hr{border:0;border-top:1px solid #333;margin:12px 0}
+.tabs{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.tab{background:#222}
+.tab.active{background:#df1f2d}
+.hidden{display:none}
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr 1fr}
+  .layout{grid-template-columns:1fr}
+  .topbar{flex-direction:column;align-items:stretch}
+}
+@media(max-width:520px){
+  .grid{grid-template-columns:1fr}
+  .actions{grid-template-columns:1fr}
+}
 </style>
 </head>
 
@@ -34,45 +66,70 @@ button{background:#df1f2d;font-weight:bold;cursor:pointer}
 
 <div id="adminPanel">
 
-<h1>Admin SushiBoxPils</h1>
-<button class="logout" onclick="logout()">Odhlásit</button>
-
-<div class="notice">
-  🔔 Bấm <b>Zapnout alarm</b> một lần. Khi có đơn mới, chuông kêu liên tục. Bấm <b>Potvrdit objednávku</b> để tắt chuông.
+<div class="topbar">
+  <div class="logoTitle">🍣 SushiBoxPils Admin</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button onclick="enableSound()">🔔 Zapnout alarm</button>
+    <button class="logout" onclick="logout()">Odhlásit</button>
+  </div>
 </div>
 
-<button onclick="enableSound()">🔔 Zapnout alarm</button>
+<div class="container">
 
-<h2>Přidat jídlo</h2>
+  <div class="notice">
+    🔔 Bấm <b>Zapnout alarm</b> một lần. Có đơn mới → chuông kêu liên tục. Bấm <b>Potvrdit objednávku</b> để tắt chuông.
+  </div>
 
-<input id="name" placeholder="Název jídla">
+  <div class="grid">
+    <div class="stat"><small>Doanh thu hôm nay</small><strong><span id="todayRevenue">0</span> Kč</strong></div>
+    <div class="stat"><small>Đơn hôm nay</small><strong id="todayOrders">0</strong></div>
+    <div class="stat"><small>Đơn chưa xác nhận</small><strong id="newOrders">0</strong></div>
+    <div class="stat"><small>Tổng doanh thu</small><strong><span id="totalRevenue">0</span> Kč</strong></div>
+  </div>
 
-<select id="category">
-  <option value="roll">Rolls</option>
-  <option value="nigiri">Nigiri</option>
-  <option value="set">Sety</option>
-  <option value="party">Party boxy</option>
-</select>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('ordersTab', this)">Objednávky</button>
+    <button class="tab" onclick="showTab('menuTab', this)">Menu</button>
+    <button class="tab" onclick="showTab('addTab', this)">Přidat jídlo</button>
+  </div>
 
-<textarea id="desc" placeholder="Popis"></textarea>
-<input id="price" type="number" placeholder="Cena Kč">
+  <div id="ordersTab" class="panel">
+    <h2>Objednávky</h2>
+    <div id="ordersList">Načítám...</div>
+  </div>
 
-<h3>Obrázek</h3>
-<input id="fileInput" type="file" accept="image/*">
-<button class="upload" onclick="uploadImage()">Nahrát obrázek</button>
-<p id="uploadStatus"></p>
-<img id="preview" style="display:none">
+  <div id="menuTab" class="panel hidden">
+    <h2>Moje menu</h2>
+    <div id="list">Načítám...</div>
+  </div>
 
-<input id="img" placeholder="URL obrázku">
+  <div id="addTab" class="panel hidden">
+    <h2>Přidat jídlo</h2>
 
-<button id="addBtn">Přidat jídlo</button>
+    <input id="name" placeholder="Název jídla">
 
-<h2>Menu</h2>
-<div id="list"></div>
+    <select id="category">
+      <option value="roll">Rolls</option>
+      <option value="nigiri">Nigiri</option>
+      <option value="set">Sety</option>
+      <option value="party">Party boxy</option>
+    </select>
 
-<h2>Objednávky</h2>
-<div id="ordersList"></div>
+    <textarea id="desc" placeholder="Popis"></textarea>
+    <input id="price" type="number" placeholder="Cena Kč">
 
+    <h3>Obrázek</h3>
+    <input id="fileInput" type="file" accept="image/*">
+    <button class="upload" onclick="uploadImage()">Nahrát obrázek</button>
+    <p id="uploadStatus"></p>
+    <img id="preview" style="display:none">
+
+    <input id="img" placeholder="URL obrázku">
+
+    <button id="addBtn">Přidat jídlo</button>
+  </div>
+
+</div>
 </div>
 
 <script type="module">
@@ -104,37 +161,37 @@ let firstOrdersLoad = true;
 let lastOrderCount = 0;
 let alarmInterval = null;
 
+window.showTab = (tabId, btn)=>{
+  document.querySelectorAll(".panel").forEach(p=>p.classList.add("hidden"));
+  document.getElementById(tabId).classList.remove("hidden");
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  btn.classList.add("active");
+};
+
 window.enableSound = () => {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   soundEnabled = true;
-
   playBeep(900,0,0.15);
   alert("Alarm zapnut.");
 };
 
 function playBeep(freq, start, duration){
   if(!audioCtx) return;
-
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-
   osc.type = "square";
   osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
-
   gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + start);
   gain.gain.exponentialRampToValueAtTime(0.45, audioCtx.currentTime + start + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + start + duration);
-
   osc.connect(gain);
   gain.connect(audioCtx.destination);
-
   osc.start(audioCtx.currentTime + start);
   osc.stop(audioCtx.currentTime + start + duration);
 }
 
 function playAlarmSound(){
   if(!soundEnabled || !audioCtx) return;
-
   for(let i = 0; i < 15; i++){
     const start = i * 0.35;
     const freq = i % 2 === 0 ? 900 : 1200;
@@ -150,10 +207,8 @@ function vibratePhone(){
 
 function startAlarm(){
   if(alarmInterval) return;
-
   playAlarmSound();
   vibratePhone();
-
   alarmInterval = setInterval(() => {
     playAlarmSound();
     vibratePhone();
@@ -258,9 +313,7 @@ window.confirmOrder = async id=>{
     status:"confirmed",
     confirmedAt:serverTimestamp()
   });
-
   stopAlarm();
-  alert("Objednávka potvrzena.");
 };
 
 window.deleteOrder = async id=>{
@@ -269,6 +322,15 @@ window.deleteOrder = async id=>{
     stopAlarm();
   }
 };
+
+function isToday(createdAt){
+  if(!createdAt || !createdAt.toDate) return false;
+  const d = createdAt.toDate();
+  const now = new Date();
+  return d.getFullYear()===now.getFullYear() &&
+         d.getMonth()===now.getMonth() &&
+         d.getDate()===now.getDate();
+}
 
 onSnapshot(productsRef,snap=>{
   const list = document.getElementById("list");
@@ -296,6 +358,11 @@ onSnapshot(ordersRef,snap=>{
   const ordersList = document.getElementById("ordersList");
   ordersList.innerHTML="";
 
+  let totalRevenue = 0;
+  let todayRevenue = 0;
+  let todayOrders = 0;
+  let newOrders = 0;
+
   if(firstOrdersLoad){
     lastOrderCount=snap.size;
     firstOrdersLoad=false;
@@ -309,12 +376,19 @@ onSnapshot(ordersRef,snap=>{
   if(snap.empty){
     ordersList.innerHTML="<p>Zatím žádné objednávky.</p>";
     stopAlarm();
-    return;
   }
 
   snap.forEach(d=>{
     const o=d.data();
+    const total = Number(o.total || 0);
     const isConfirmed = o.status === "confirmed";
+
+    totalRevenue += total;
+    if(isToday(o.createdAt)){
+      todayRevenue += total;
+      todayOrders += 1;
+    }
+    if(!isConfirmed) newOrders += 1;
 
     let items="";
     o.items?.forEach(i=>{
@@ -322,23 +396,35 @@ onSnapshot(ordersRef,snap=>{
     });
 
     ordersList.innerHTML+=`
-    <div class="order">
-      <span class="status ${isConfirmed ? "done" : ""}">
-        ${isConfirmed ? "POTVRZENO" : "NOVÁ OBJEDNÁVKA"}
-      </span>
-      <h3>Objednávka</h3>
+    <div class="order ${isConfirmed ? "confirmed" : "new"}">
+      <div class="orderHead">
+        <div>
+          <span class="status ${isConfirmed ? "done" : ""}">
+            ${isConfirmed ? "POTVRZENO" : "NOVÁ OBJEDNÁVKA"}
+          </span>
+          <h3>Objednávka</h3>
+        </div>
+        <div class="orderTotal">${total} Kč</div>
+      </div>
+
       <p><b>Jméno:</b> ${o.customerName || "-"}</p>
       <p><b>Telefon:</b> ${o.customerPhone || "-"}</p>
       <p><b>Poznámka:</b> ${o.customerNote || "-"}</p>
       <hr>
       ${items}
       <hr>
-      <b>Celkem: ${o.total || 0} Kč</b>
 
-      ${!isConfirmed ? `<button class="confirm" onclick="confirmOrder('${d.id}')">Potvrdit objednávku</button>` : ""}
-      <button class="delete" onclick="deleteOrder('${d.id}')">Smazat objednávku</button>
+      <div class="actions">
+        ${!isConfirmed ? `<button class="confirm" onclick="confirmOrder('${d.id}')">Potvrdit objednávku</button>` : ""}
+        <button class="delete" onclick="deleteOrder('${d.id}')">Smazat objednávku</button>
+      </div>
     </div>`;
   });
+
+  document.getElementById("todayRevenue").innerText = todayRevenue;
+  document.getElementById("todayOrders").innerText = todayOrders;
+  document.getElementById("newOrders").innerText = newOrders;
+  document.getElementById("totalRevenue").innerText = totalRevenue;
 });
 </script>
 
