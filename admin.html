@@ -30,22 +30,46 @@ input,textarea,select{width:100%;padding:13px;margin:7px 0 12px;border-radius:10
 .ship{background:#7c3aed}
 .delete{background:#444}
 .cancel{background:#555}
-.item,.order{border:1px solid #333;border-radius:16px;padding:14px;margin:12px 0;background:#151515}
+.item,.order{border:1px solid #333;border-radius:16px;padding:14px;background:#151515}
 .item img,#preview{width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-top:8px}
+
+#ordersList{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.order{
+  margin:0;
+  padding:13px;
+  border-radius:14px;
+}
+
+.order h3{
+  font-size:17px;
+  margin-bottom:6px;
+}
+
+.order p{
+  margin:5px 0;
+  font-size:14px;
+  line-height:1.35;
+}
+
 .order.new{border-color:#df1f2d;background:#16090a}
 .order.preparing{border-color:#ca8a04}
 .order.done{border-color:#2563eb}
 .order.shipping{border-color:#7c3aed}
-.status{display:inline-block;padding:6px 10px;border-radius:20px;background:#7f1d1d;color:#fff;margin-bottom:10px;font-size:12px;font-weight:bold}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;background:#7f1d1d;color:#fff;margin-bottom:8px;font-size:11px;font-weight:bold}
 .status.preparing{background:#92400e}
 .status.done{background:#1e3a8a}
 .status.shipping{background:#581c87}
 .orderHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.orderTotal{font-size:22px;color:#c9974c;font-weight:800}
+.orderTotal{font-size:20px;color:#c9974c;font-weight:800}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.orderActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
-.orderActions button{padding:8px 10px;font-size:12px;border-radius:8px}
-hr{border:0;border-top:1px solid #333;margin:12px 0}
+.orderActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.orderActions button{padding:7px 9px;font-size:12px;border-radius:8px}
+hr{border:0;border-top:1px solid #333;margin:10px 0}
 .tabs{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .tab{background:#222}
 .tab.active{background:#df1f2d}
@@ -64,11 +88,13 @@ hr{border:0;border-top:1px solid #333;margin:12px 0}
   .grid{grid-template-columns:1fr 1fr}
   .topbar{flex-direction:column;align-items:stretch}
   .menuItemsGrid{grid-template-columns:repeat(2,1fr)}
+  #ordersList{grid-template-columns:1fr}
 }
 @media(max-width:520px){
   .grid{grid-template-columns:1fr}
   .actions{grid-template-columns:1fr}
   .menuItemsGrid{grid-template-columns:1fr}
+  #ordersList{grid-template-columns:1fr}
 }
 </style>
 </head>
