@@ -16,6 +16,7 @@ button{background:#df1f2d;font-weight:bold;cursor:pointer}
 .delete{background:#444}
 .upload{background:#c9974c;color:black}
 .logout{background:#555}
+.notice{background:#182510;border:1px solid #4caf50;padding:12px;border-radius:10px;margin:12px 0;color:#b6ffb6}
 </style>
 </head>
 
@@ -32,6 +33,12 @@ button{background:#df1f2d;font-weight:bold;cursor:pointer}
 
 <h1>Admin SushiBoxPils</h1>
 <button class="logout" onclick="logout()">Odhlásit</button>
+
+<div class="notice">
+  🔔 Otevřete tuto stránku v telefonu. Když přijde nová objednávka, telefon zavibruje a zazní zvuk.
+</div>
+
+<button onclick="enableSound()">Zapnout zvuk upozornění</button>
 
 <h2>Přidat jídlo</h2>
 
@@ -90,6 +97,44 @@ const ordersRef = collection(db, "orders");
 
 const list = document.getElementById("list");
 const ordersList = document.getElementById("ordersList");
+
+let soundEnabled = false;
+let firstOrdersLoad = true;
+let lastOrderCount = 0;
+
+window.enableSound = () => {
+  soundEnabled = true;
+  playAlertSound();
+  alert("Zvuk upozornění je zapnutý.");
+};
+
+function playAlertSound(){
+  if(!soundEnabled) return;
+
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+  gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.35);
+}
+
+function notifyNewOrder(){
+  playAlertSound();
+
+  if(navigator.vibrate){
+    navigator.vibrate([300, 120, 300, 120, 500]);
+  }
+
+  alert("Máte novou objednávku!");
+}
 
 window.login = async () => {
   const email = document.getElementById("email").value;
@@ -215,6 +260,18 @@ onSnapshot(productsRef, (snapshot) => {
 
 onSnapshot(ordersRef, (snapshot) => {
   ordersList.innerHTML = "";
+
+  const currentCount = snapshot.size;
+
+  if(firstOrdersLoad){
+    lastOrderCount = currentCount;
+    firstOrdersLoad = false;
+  } else if(currentCount > lastOrderCount){
+    notifyNewOrder();
+    lastOrderCount = currentCount;
+  } else {
+    lastOrderCount = currentCount;
+  }
 
   snapshot.forEach((docSnap) => {
     const order = docSnap.data();
