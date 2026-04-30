@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin SushiBoxPils</title>
 <style>
-body{font-family:Arial,sans-serif;background:#070707;color:white;margin:0;padding:20px}
+body{font-family:Arial,sans-serif;background:#070707;color:white;margin:0;padding:18px}
 h1{color:#e11d2e}
 input,textarea,select,button{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #333;background:#111;color:white}
 button{background:#df1f2d;font-weight:bold;cursor:pointer}
@@ -31,65 +31,78 @@ a{color:#c9974c}
 <input id="price" type="number" placeholder="Cena Kč">
 <input id="img" placeholder="Odkaz na obrázek">
 
-<button onclick="addProduct()">Přidat jídlo</button>
+<button id="addBtn">Přidat jídlo</button>
 
 <h2>Moje menu</h2>
-<div id="list"></div>
+<div id="list">Načítám...</div>
 
-<script>
-let products = JSON.parse(localStorage.getItem("adminProducts")) || [];
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-function save(){
-  localStorage.setItem("adminProducts", JSON.stringify(products));
-  render();
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyCECFacCTVZpt9EM5HyDF98cVSrJNrIw9A",
+  authDomain: "sushiboxpils.firebaseapp.com",
+  projectId: "sushiboxpils",
+  storageBucket: "sushiboxpils.firebasestorage.app",
+  messagingSenderId: "296051969254",
+  appId: "1:296051969254:web:cce432ad7060cbc32a3f27"
+};
 
-function addProduct(){
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const productsRef = collection(db, "products");
+const list = document.getElementById("list");
+
+document.getElementById("addBtn").onclick = async () => {
   const item = {
     name: document.getElementById("name").value,
     category: document.getElementById("category").value,
     desc: document.getElementById("desc").value,
     price: Number(document.getElementById("price").value),
-    img: document.getElementById("img").value
+    img: document.getElementById("img").value,
+    createdAt: serverTimestamp()
   };
 
-  if(!item.name || !item.price){
+  if (!item.name || !item.price) {
     alert("Vyplň název a cenu.");
     return;
   }
 
-  products.push(item);
-  save();
+  await addDoc(productsRef, item);
 
   document.getElementById("name").value = "";
   document.getElementById("desc").value = "";
   document.getElementById("price").value = "";
   document.getElementById("img").value = "";
-}
+};
 
-function removeProduct(index){
-  products.splice(index,1);
-  save();
-}
+window.removeProduct = async (id) => {
+  await deleteDoc(doc(db, "products", id));
+};
 
-function render(){
-  const list = document.getElementById("list");
+onSnapshot(productsRef, (snapshot) => {
   list.innerHTML = "";
 
-  products.forEach((item,index)=>{
+  if (snapshot.empty) {
+    list.innerHTML = "<p>Zatím žádné jídlo.</p>";
+    return;
+  }
+
+  snapshot.forEach((docSnap) => {
+    const item = docSnap.data();
     list.innerHTML += `
       <div class="item">
         ${item.img ? `<img src="${item.img}">` : ""}
         <h3>${item.name}</h3>
-        <p>${item.desc}</p>
+        <p>${item.desc || ""}</p>
         <strong>${item.price} Kč</strong>
-        <button class="delete" onclick="removeProduct(${index})">Smazat</button>
+        <button class="delete" onclick="removeProduct('${docSnap.id}')">Smazat</button>
       </div>
     `;
   });
-}
-
-render();
+});
 </script>
 
 </body>
