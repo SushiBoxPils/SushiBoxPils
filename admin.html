@@ -9,14 +9,13 @@
 body{font-family:Arial;background:#070707;color:white;margin:0;padding:20px}
 #loginBox{max-width:400px;margin:100px auto;background:#111;padding:25px;border-radius:15px;text-align:center}
 #adminPanel{display:none}
-input,textarea,select,button{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #333;background:#111;color:white;box-sizing:border-box}
+input,textarea,select,button{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #333;background:#111;color:white}
 button{background:#df1f2d;font-weight:bold;cursor:pointer}
 .item,.order{border:1px solid #444;border-radius:14px;padding:15px;margin:14px 0;background:#111}
-.item img,#preview{width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin-top:10px}
+.item img,#preview{width:100%;max-height:220px;object-fit:cover;border-radius:10px}
 .delete{background:#444}
 .upload{background:#c9974c;color:black}
 .logout{background:#555}
-.notice{background:#182510;border:1px solid #4caf50;padding:12px;border-radius:10px;margin:12px 0;color:#b6ffb6}
 </style>
 </head>
 
@@ -34,11 +33,7 @@ button{background:#df1f2d;font-weight:bold;cursor:pointer}
 <h1>Admin SushiBoxPils</h1>
 <button class="logout" onclick="logout()">Odhlásit</button>
 
-<div class="notice">
-  🔔 Otevřete tuto stránku v telefonu. Když přijde nová objednávka, telefon zavibruje a zazní zvuk.
-</div>
-
-<button onclick="enableSound()">Zapnout zvuk upozornění</button>
+<button onclick="enableSound()">🔔 Zapnout alarm</button>
 
 <h2>Přidat jídlo</h2>
 
@@ -54,17 +49,17 @@ button{background:#df1f2d;font-weight:bold;cursor:pointer}
 <textarea id="desc" placeholder="Popis"></textarea>
 <input id="price" type="number" placeholder="Cena Kč">
 
-<h3>Obrázek jídla</h3>
+<h3>Obrázek</h3>
 <input id="fileInput" type="file" accept="image/*">
 <button class="upload" onclick="uploadImage()">Nahrát obrázek</button>
 <p id="uploadStatus"></p>
 <img id="preview" style="display:none">
 
-<input id="img" placeholder="Odkaz na obrázek">
+<input id="img" placeholder="URL obrázku">
 
 <button id="addBtn">Přidat jídlo</button>
 
-<h2>Moje menu</h2>
+<h2>Menu</h2>
 <div id="list"></div>
 
 <h2>Objednávky</h2>
@@ -95,207 +90,161 @@ const auth = getAuth(app);
 const productsRef = collection(db, "products");
 const ordersRef = collection(db, "orders");
 
-const list = document.getElementById("list");
-const ordersList = document.getElementById("ordersList");
-
+let audioCtx = null;
 let soundEnabled = false;
 let firstOrdersLoad = true;
 let lastOrderCount = 0;
 
 window.enableSound = () => {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   soundEnabled = true;
-  playAlertSound();
-  alert("Zvuk upozornění je zapnutý.");
+  playAlarmSound();
+  alert("Alarm zapnut.");
 };
 
-function playAlertSound(){
+function playBeep(freq, start, duration){
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = "square";
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
+
+  gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + start);
+  gain.gain.exponentialRampToValueAtTime(0.5, audioCtx.currentTime + start + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + start + duration);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start(audioCtx.currentTime + start);
+  osc.stop(audioCtx.currentTime + start + duration);
+}
+
+function playAlarmSound(){
   if(!soundEnabled) return;
 
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const oscillator = audioCtx.createOscillator();
-  const gainNode = audioCtx.createGain();
+  playBeep(900,0,0.25);
+  playBeep(900,0.35,0.25);
+  playBeep(1200,0.7,0.3);
 
-  oscillator.type = "sine";
-  oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-  gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+  setTimeout(()=>playAlarmSound(),2000);
+}
 
-  oscillator.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-
-  oscillator.start();
-  oscillator.stop(audioCtx.currentTime + 0.35);
+function vibratePhone(){
+  if(navigator.vibrate){
+    navigator.vibrate([800,200,800,200,1200]);
+  }
 }
 
 function notifyNewOrder(){
-  playAlertSound();
-
-  if(navigator.vibrate){
-    navigator.vibrate([300, 120, 300, 120, 500]);
-  }
-
-  alert("Máte novou objednávku!");
+  playAlarmSound();
+  vibratePhone();
+  alert("🚨 NOVÁ OBJEDNÁVKA!");
 }
 
 window.login = async () => {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
-
   try{
-    await signInWithEmailAndPassword(auth, email, pass);
-  }catch(e){
-    alert("Špatné přihlášení!");
+    await signInWithEmailAndPassword(auth, email.value, password.value);
+  }catch{
+    alert("Chyba loginu");
   }
 };
 
-window.logout = async () => {
-  await signOut(auth);
-};
+window.logout = async () => await signOut(auth);
 
-onAuthStateChanged(auth, (user) => {
-  if(user){
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("adminPanel").style.display = "block";
-  } else {
-    document.getElementById("loginBox").style.display = "block";
-    document.getElementById("adminPanel").style.display = "none";
-  }
+onAuthStateChanged(auth, (user)=>{
+  loginBox.style.display = user ? "none":"block";
+  adminPanel.style.display = user ? "block":"none";
 });
 
 window.uploadImage = async () => {
-  const file = document.getElementById("fileInput").files[0];
-  const status = document.getElementById("uploadStatus");
+  const file = fileInput.files[0];
+  if(!file){ alert("Vyber obrázek"); return; }
 
-  if(!file){
-    alert("Vyber obrázek.");
-    return;
-  }
+  uploadStatus.innerText="Nahrávám...";
 
-  status.innerText = "Nahrávám obrázek...";
+  const formData=new FormData();
+  formData.append("image",file);
 
-  const formData = new FormData();
-  formData.append("image", file);
+  const res=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,{
+    method:"POST",
+    body:formData
+  });
 
-  try{
-    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-      method: "POST",
-      body: formData
-    });
+  const data=await res.json();
 
-    const result = await response.json();
-
-    if(result.success){
-      const imageUrl = result.data.url;
-      document.getElementById("img").value = imageUrl;
-
-      const preview = document.getElementById("preview");
-      preview.src = imageUrl;
-      preview.style.display = "block";
-
-      status.innerText = "Obrázek nahrán úspěšně.";
-    } else {
-      status.innerText = "Chyba při nahrávání.";
-    }
-  }catch(error){
-    status.innerText = "Chyba uploadu.";
+  if(data.success){
+    img.value=data.data.url;
+    preview.src=data.data.url;
+    preview.style.display="block";
+    uploadStatus.innerText="OK";
   }
 };
 
-document.getElementById("addBtn").onclick = async () => {
-  const item = {
-    name: document.getElementById("name").value,
-    category: document.getElementById("category").value,
-    desc: document.getElementById("desc").value,
-    price: Number(document.getElementById("price").value),
-    img: document.getElementById("img").value,
-    createdAt: serverTimestamp()
-  };
+addBtn.onclick = async ()=>{
+  if(!name.value || !price.value) return alert("Vyplň");
 
-  if (!item.name || !item.price) {
-    alert("Vyplň název a cenu.");
-    return;
-  }
+  await addDoc(productsRef,{
+    name:name.value,
+    desc:desc.value,
+    price:Number(price.value),
+    img:img.value,
+    createdAt:serverTimestamp()
+  });
 
-  await addDoc(productsRef, item);
-
-  document.getElementById("name").value = "";
-  document.getElementById("desc").value = "";
-  document.getElementById("price").value = "";
-  document.getElementById("img").value = "";
-  document.getElementById("fileInput").value = "";
-  document.getElementById("preview").style.display = "none";
-  document.getElementById("uploadStatus").innerText = "";
-
-  alert("Jídlo přidáno.");
+  name.value=desc.value=price.value=img.value="";
+  preview.style.display="none";
 };
 
-window.removeProduct = async (id) => {
-  if(confirm("Opravdu smazat jídlo?")){
-    await deleteDoc(doc(db, "products", id));
-  }
+window.removeProduct = async id=>{
+  await deleteDoc(doc(db,"products",id));
 };
 
-window.deleteOrder = async (id) => {
-  if(confirm("Opravdu smazat objednávku?")){
-    await deleteDoc(doc(db, "orders", id));
-  }
+window.deleteOrder = async id=>{
+  await deleteDoc(doc(db,"orders",id));
 };
 
-onSnapshot(productsRef, (snapshot) => {
-  list.innerHTML = "";
-
-  snapshot.forEach((docSnap) => {
-    const item = docSnap.data();
-
-    list.innerHTML += `
-      <div class="item">
-        ${item.img ? `<img src="${item.img}">` : ""}
-        <h3>${item.name}</h3>
-        <p>${item.desc || ""}</p>
-        <strong>${item.price} Kč</strong>
-        <button class="delete" onclick="removeProduct('${docSnap.id}')">Smazat</button>
-      </div>
-    `;
+onSnapshot(productsRef,snap=>{
+  list.innerHTML="";
+  snap.forEach(d=>{
+    const i=d.data();
+    list.innerHTML+=`
+    <div class="item">
+      ${i.img?`<img src="${i.img}">`:""}
+      <h3>${i.name}</h3>
+      <p>${i.desc||""}</p>
+      <b>${i.price} Kč</b>
+      <button onclick="removeProduct('${d.id}')">Smazat</button>
+    </div>`;
   });
 });
 
-onSnapshot(ordersRef, (snapshot) => {
-  ordersList.innerHTML = "";
-
-  const currentCount = snapshot.size;
+onSnapshot(ordersRef,snap=>{
+  ordersList.innerHTML="";
 
   if(firstOrdersLoad){
-    lastOrderCount = currentCount;
-    firstOrdersLoad = false;
-  } else if(currentCount > lastOrderCount){
+    lastOrderCount=snap.size;
+    firstOrdersLoad=false;
+  }else if(snap.size>lastOrderCount){
     notifyNewOrder();
-    lastOrderCount = currentCount;
-  } else {
-    lastOrderCount = currentCount;
+    lastOrderCount=snap.size;
   }
 
-  snapshot.forEach((docSnap) => {
-    const order = docSnap.data();
+  snap.forEach(d=>{
+    const o=d.data();
+    let items="";
+    o.items?.forEach(i=>{
+      items+=`<p>${i.qty}× ${i.name}</p>`;
+    });
 
-    let itemsHTML = "";
-    if(order.items){
-      order.items.forEach(item => {
-        itemsHTML += `<p>${item.qty}× ${item.name} (${item.lineTotal} Kč)</p>`;
-      });
-    }
-
-    ordersList.innerHTML += `
-      <div class="order">
-        <h3>Objednávka</h3>
-        <p>Jméno: ${order.customerName || "-"}</p>
-        <p>Telefon: ${order.customerPhone || "-"}</p>
-        <p>Poznámka: ${order.customerNote || "-"}</p>
-        <hr>
-        ${itemsHTML}
-        <hr>
-        <strong>${order.total || 0} Kč</strong>
-        <button class="delete" onclick="deleteOrder('${docSnap.id}')">Smazat objednávku</button>
-      </div>
-    `;
+    ordersList.innerHTML+=`
+    <div class="order">
+      <h3>Objednávka</h3>
+      <p>${o.customerName||""}</p>
+      ${items}
+      <b>${o.total} Kč</b>
+      <button onclick="deleteOrder('${d.id}')">Smazat</button>
+    </div>`;
   });
 });
 </script>
