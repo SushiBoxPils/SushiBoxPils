@@ -1,1 +1,96 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin SushiBoxPils</title>
+<style>
+body{font-family:Arial,sans-serif;background:#070707;color:white;margin:0;padding:20px}
+h1{color:#e11d2e}
+input,textarea,select,button{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #333;background:#111;color:white}
+button{background:#df1f2d;font-weight:bold;cursor:pointer}
+.item{border:1px solid #333;border-radius:14px;padding:15px;margin:12px 0;background:#111}
+.item img{width:100%;max-height:180px;object-fit:cover;border-radius:10px}
+.delete{background:#444}
+a{color:#c9974c}
+</style>
+</head>
+<body>
 
+<h1>Admin SushiBoxPils</h1>
+<p><a href="index.html">← Zpět na web</a></p>
+
+<input id="name" placeholder="Název jídla">
+<select id="category">
+  <option value="roll">Rolls</option>
+  <option value="nigiri">Nigiri</option>
+  <option value="set">Sety</option>
+  <option value="party">Party boxy</option>
+</select>
+<textarea id="desc" placeholder="Popis"></textarea>
+<input id="price" type="number" placeholder="Cena Kč">
+<input id="img" placeholder="Odkaz na obrázek">
+
+<button onclick="addProduct()">Přidat jídlo</button>
+
+<h2>Moje menu</h2>
+<div id="list"></div>
+
+<script>
+let products = JSON.parse(localStorage.getItem("adminProducts")) || [];
+
+function save(){
+  localStorage.setItem("adminProducts", JSON.stringify(products));
+  render();
+}
+
+function addProduct(){
+  const item = {
+    name: document.getElementById("name").value,
+    category: document.getElementById("category").value,
+    desc: document.getElementById("desc").value,
+    price: Number(document.getElementById("price").value),
+    img: document.getElementById("img").value
+  };
+
+  if(!item.name || !item.price){
+    alert("Vyplň název a cenu.");
+    return;
+  }
+
+  products.push(item);
+  save();
+
+  document.getElementById("name").value = "";
+  document.getElementById("desc").value = "";
+  document.getElementById("price").value = "";
+  document.getElementById("img").value = "";
+}
+
+function removeProduct(index){
+  products.splice(index,1);
+  save();
+}
+
+function render(){
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  products.forEach((item,index)=>{
+    list.innerHTML += `
+      <div class="item">
+        ${item.img ? `<img src="${item.img}">` : ""}
+        <h3>${item.name}</h3>
+        <p>${item.desc}</p>
+        <strong>${item.price} Kč</strong>
+        <button class="delete" onclick="removeProduct(${index})">Smazat</button>
+      </div>
+    `;
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>
