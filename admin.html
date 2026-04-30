@@ -4,41 +4,114 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin SushiBoxPils</title>
+
 <style>
-body{font-family:Arial,sans-serif;background:#070707;color:white;margin:0;padding:18px}
+body{
+  font-family:Arial,sans-serif;
+  background:#070707;
+  color:white;
+  margin:0;
+  padding:18px;
+}
+
 h1{color:#e11d2e}
-input,textarea,select,button{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #333;background:#111;color:white}
-button{background:#df1f2d;font-weight:bold;cursor:pointer}
-.item{border:1px solid #333;border-radius:14px;padding:15px;margin:12px 0;background:#111}
-.item img{width:100%;max-height:180px;object-fit:cover;border-radius:10px}
-.delete{background:#444}
+h2{margin-top:35px}
+
 a{color:#c9974c}
+
+input,textarea,select,button{
+  width:100%;
+  padding:13px;
+  margin:8px 0;
+  border-radius:10px;
+  border:1px solid #333;
+  background:#111;
+  color:white;
+  box-sizing:border-box;
+}
+
+button{
+  background:#df1f2d;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.item,.order{
+  border:1px solid #444;
+  border-radius:14px;
+  padding:15px;
+  margin:14px 0;
+  background:#111;
+}
+
+.item img{
+  width:100%;
+  max-height:180px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+.delete{
+  background:#444;
+}
+
+.order{
+  border-color:#c9974c;
+}
+
+.order strong{
+  color:#ff4444;
+}
+
+hr{
+  border:0;
+  border-top:1px solid #333;
+  margin:12px 0;
+}
 </style>
 </head>
+
 <body>
 
 <h1>Admin SushiBoxPils</h1>
 <p><a href="index.html">← Zpět na web</a></p>
 
+<h2>Přidat jídlo</h2>
+
 <input id="name" placeholder="Název jídla">
+
 <select id="category">
   <option value="roll">Rolls</option>
   <option value="nigiri">Nigiri</option>
   <option value="set">Sety</option>
   <option value="party">Party boxy</option>
 </select>
-<textarea id="desc" placeholder="Popis"></textarea>
+
+<textarea id="desc" rows="3" placeholder="Popis"></textarea>
+
 <input id="price" type="number" placeholder="Cena Kč">
+
 <input id="img" placeholder="Odkaz na obrázek">
 
 <button id="addBtn">Přidat jídlo</button>
 
 <h2>Moje menu</h2>
-<div id="list">Načítám...</div>
+<div id="list">Načítám menu...</div>
+
+<h2>Objednávky</h2>
+<div id="ordersList">Načítám objednávky...</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  getFirestore,
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCECFacCTVZpt9EM5HyDF98cVSrJNrIw9A",
@@ -53,7 +126,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const productsRef = collection(db, "products");
+const ordersRef = collection(db, "orders");
+
 const list = document.getElementById("list");
+const ordersList = document.getElementById("ordersList");
 
 document.getElementById("addBtn").onclick = async () => {
   const item = {
@@ -79,7 +155,15 @@ document.getElementById("addBtn").onclick = async () => {
 };
 
 window.removeProduct = async (id) => {
-  await deleteDoc(doc(db, "products", id));
+  if(confirm("Opravdu smazat jídlo?")){
+    await deleteDoc(doc(db, "products", id));
+  }
+};
+
+window.deleteOrder = async (id) => {
+  if(confirm("Opravdu smazat objednávku?")){
+    await deleteDoc(doc(db, "orders", id));
+  }
 };
 
 onSnapshot(productsRef, (snapshot) => {
@@ -92,13 +176,56 @@ onSnapshot(productsRef, (snapshot) => {
 
   snapshot.forEach((docSnap) => {
     const item = docSnap.data();
+
     list.innerHTML += `
       <div class="item">
-        ${item.img ? `<img src="${item.img}">` : ""}
+        ${item.img ? `<img src="${item.img}" alt="${item.name}">` : ""}
         <h3>${item.name}</h3>
         <p>${item.desc || ""}</p>
         <strong>${item.price} Kč</strong>
-        <button class="delete" onclick="removeProduct('${docSnap.id}')">Smazat</button>
+        <button class="delete" onclick="removeProduct('${docSnap.id}')">Smazat jídlo</button>
+      </div>
+    `;
+  });
+});
+
+onSnapshot(ordersRef, (snapshot) => {
+  ordersList.innerHTML = "";
+
+  if (snapshot.empty) {
+    ordersList.innerHTML = "<p>Zatím žádné objednávky.</p>";
+    return;
+  }
+
+  snapshot.forEach((docSnap) => {
+    const order = docSnap.data();
+
+    let itemsHTML = "";
+    if(order.items && order.items.length){
+      order.items.forEach(item => {
+        itemsHTML += `<p>${item.qty}× ${item.name} — ${item.lineTotal} Kč</p>`;
+      });
+    }
+
+    ordersList.innerHTML += `
+      <div class="order">
+        <h3>Nová objednávka</h3>
+
+        <p><b>Jméno:</b> ${order.customerName || "-"}</p>
+        <p><b>Telefon:</b> ${order.customerPhone || "-"}</p>
+        <p><b>Poznámka:</b> ${order.customerNote || "-"}</p>
+
+        <hr>
+
+        ${itemsHTML}
+
+        <hr>
+
+        <p><strong>Celkem: ${order.total || 0} Kč</strong></p>
+
+        <button class="delete" onclick="deleteOrder('${docSnap.id}')">
+          Smazat objednávku
+        </button>
       </div>
     `;
   });
