@@ -1,239 +1,62 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
-<link rel="apple-touch-icon" href="logo.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SushiBoxPils Web App</title>
+<title>SushiBoxPils</title>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+body{
+    margin:0;
+    font-family:Arial;
+    background:#070707;
+    color:white;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background: #070707;
-    color: white;
-    padding-bottom: 90px;
+header{
+    background:#000;
+    padding:20px;
+    text-align:center;
 }
 
-header {
-    background: #000;
-    padding: 18px;
-    text-align: center;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    border-bottom: 1px solid #222;
+h1{color:#e11d2e}
+
+.menu{
+    padding:15px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:15px;
 }
 
-.logo {
-    width: 120px;
-    margin-bottom: 8px;
+.item{
+    background:#111;
+    border:1px solid #222;
+    border-radius:12px;
+    overflow:hidden;
 }
 
-header h1 {
-    color: #e11d2e;
-    font-size: 28px;
+.item img{
+    width:100%;
+    height:180px;
+    object-fit:cover;
 }
 
-.slogan {
-    color: #c9974c;
-    font-size: 12px;
-    letter-spacing: 1.5px;
-    margin-top: 6px;
+.item-content{
+    padding:15px;
 }
 
-.hero {
-    padding: 28px 18px;
-    text-align: center;
-    background:
-        linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.85)),
-        url('https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=1200&auto=format&fit=crop');
-    background-size: cover;
-    background-position: center;
+.price{
+    color:#ff2c2c;
+    font-size:20px;
+    font-weight:bold;
 }
 
-.hero h2 {
-    font-size: 30px;
-    margin-bottom: 12px;
+@media(min-width:700px){
+    .menu{grid-template-columns:1fr 1fr;}
 }
 
-.hero p {
-    color: #ddd;
-    line-height: 1.6;
-}
-
-.tabs {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 15px;
-    background: #0d0d0d;
-    position: sticky;
-    top: 96px;
-    z-index: 9;
-}
-
-.tab {
-    border: 1px solid #333;
-    background: #151515;
-    color: white;
-    padding: 10px 14px;
-    border-radius: 25px;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.tab.active {
-    background: #df1f2d;
-    border-color: #df1f2d;
-}
-
-.menu {
-    padding: 18px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-}
-
-.item {
-    background: #111;
-    border: 1px solid #222;
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-.item img {
-    width: 100%;
-    height: 190px;
-    object-fit: cover;
-}
-
-.item-content {
-    padding: 15px;
-}
-
-.item h3 {
-    font-size: 20px;
-    margin-bottom: 6px;
-}
-
-.item p {
-    color: #bbb;
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 12px;
-}
-
-.item-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.price {
-    color: #ff3333;
-    font-size: 22px;
-    font-weight: bold;
-}
-
-button {
-    border: none;
-    background: #df1f2d;
-    color: white;
-    padding: 11px 16px;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.cart {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #000;
-    border-top: 1px solid #333;
-    padding: 12px 15px;
-    z-index: 20;
-}
-
-.cart-top {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.cart button {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-}
-
-.cart-details {
-    background: #111;
-    padding: 12px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    display: none;
-}
-
-.cart-line {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #222;
-    padding: 8px 0;
-    font-size: 14px;
-}
-
-.remove {
-    background: transparent;
-    color: #ff5555;
-    padding: 0;
-}
-
-.customer {
-    padding: 18px;
-    background: #0b0b0b;
-}
-
-.customer h2 {
-    margin-bottom: 12px;
-}
-
-.customer input,
-.customer textarea {
-    width: 100%;
-    padding: 13px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    border: 1px solid #333;
-    background: #111;
-    color: white;
-}
-
-@media (min-width: 700px) {
-    .menu {
-        grid-template-columns: repeat(2, 1fr);
-        max-width: 1100px;
-        margin: auto;
-    }
-
-    .hero h2 {
-        font-size: 44px;
-    }
-}
-
-@media (min-width: 1050px) {
-    .menu {
-        grid-template-columns: repeat(3, 1fr);
-    }
+@media(min-width:1000px){
+    .menu{grid-template-columns:1fr 1fr 1fr;}
 }
 </style>
 </head>
@@ -241,217 +64,48 @@ button {
 <body>
 
 <header>
-    <img src="logo.png" class="logo" alt="SushiBoxPils Logo">
     <h1>SushiBoxPils</h1>
-    <div class="slogan">ČERSTVÉ SUSHI PRO KAŽDOU PŘÍLEŽITOST</div>
+    <p>ČERSTVÉ SUSHI PRO KAŽDOU PŘÍLEŽITOST</p>
 </header>
-
-<section class="hero">
-    <h2>Objednejte sushi online</h2>
-    <p>Vyberte si sushi, přidejte do košíku a odešlete objednávku přes WhatsApp.</p>
-</section>
-
-<div class="tabs">
-    <button class="tab active" onclick="filterMenu('all', this)">Vše</button>
-    <button class="tab" onclick="filterMenu('roll', this)">Rolls</button>
-    <button class="tab" onclick="filterMenu('nigiri', this)">Nigiri</button>
-    <button class="tab" onclick="filterMenu('set', this)">Sety</button>
-    <button class="tab" onclick="filterMenu('party', this)">Party boxy</button>
-</div>
 
 <section class="menu" id="menu"></section>
 
-<section class="customer">
-    <h2>Údaje k objednávce</h2>
-    <input id="customerName" placeholder="Jméno">
-    <input id="customerPhone" placeholder="Telefon">
-    <textarea id="customerNote" rows="3" placeholder="Poznámka: čas vyzvednutí, alergie..."></textarea>
-</section>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-<div class="cart">
-    <div class="cart-details" id="cartDetails"></div>
+const firebaseConfig = {
+  apiKey: "AIzaSyCECFacCTVZpt9EM5HyDF98cVSrJNrIw9A",
+  authDomain: "sushiboxpils.firebaseapp.com",
+  projectId: "sushiboxpils",
+  storageBucket: "sushiboxpils.firebasestorage.app",
+  messagingSenderId: "296051969254",
+  appId: "1:296051969254:web:cce432ad7060cbc32a3f27"
+};
 
-    <div class="cart-top">
-        <strong>Košík: <span id="cartCount">0</span> ks</strong>
-        <strong><span id="cartTotal">0</span> Kč</strong>
-    </div>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    <button onclick="sendOrder()">Odeslat objednávku přes WhatsApp</button>
-</div>
+const menu = document.getElementById("menu");
 
-<script>
-const whatsappNumber = "420777456789";
-
-const products = [
-    {
-        name: "Dragon Roll",
-        category: "roll",
-        desc: "Losos, avokádo, kreveta, tobiko",
-        price: 249,
-        img: "https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        name: "California Roll",
-        category: "roll",
-        desc: "Krab, avokádo, okurka, sezam",
-        price: 149,
-        img: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        name: "Crispy Salmon Roll",
-        category: "roll",
-        desc: "Losos, avokádo, panko, spicy mayo",
-        price: 229,
-        img: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        name: "Salmon Nigiri",
-        category: "nigiri",
-        desc: "2 ks nigiri s lososem",
-        price: 89,
-        img: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        name: "Tuna Nigiri",
-        category: "nigiri",
-        desc: "2 ks nigiri s tuňákem",
-        price: 109,
-        img: "https://images.unsplash.com/photo-1563612116625-3012372fccce?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        name: "Sushi Mix 16",
-        category: "set",
-        desc: "16 ks mix sushi a maki",
-        price: 399,
-        img: "https://images.unsplash.com/photo-1615361200141-f45961202b4f?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        name: "Family Box 36",
-        category: "set",
-        desc: "36 ks sushi mix pro rodinu",
-        price: 699,
-        img: "https://images.unsplash.com/photo-1617196034183-421b4917c92d?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        name: "Party Box 48",
-        category: "party",
-        desc: "48 ks mix sushi na oslavu",
-        price: 899,
-        img: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        name: "Premium Party Box 72",
-        category: "party",
-        desc: "72 ks prémiový sushi box",
-        price: 1399,
-        img: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=800&auto=format&fit=crop"
-    }
-];
-
-let cart = [];
-
-function renderMenu(category = "all") {
-    const menu = document.getElementById("menu");
+onSnapshot(collection(db,"products"), (snapshot)=>{
     menu.innerHTML = "";
 
-    const filtered = category === "all"
-        ? products
-        : products.filter(item => item.category === category);
+    snapshot.forEach(doc=>{
+        const item = doc.data();
 
-    filtered.forEach((item, index) => {
         menu.innerHTML += `
             <div class="item">
-                <img src="${item.img}" alt="${item.name}">
+                ${item.img ? `<img src="${item.img}">` : ""}
                 <div class="item-content">
                     <h3>${item.name}</h3>
-                    <p>${item.desc}</p>
-                    <div class="item-bottom">
-                        <div class="price">${item.price} Kč</div>
-                        <button onclick="addToCart('${item.name}')">Přidat</button>
-                    </div>
+                    <p>${item.desc || ""}</p>
+                    <div class="price">${item.price} Kč</div>
                 </div>
             </div>
         `;
     });
-}
-
-function filterMenu(category, button) {
-    document.querySelectorAll(".tab").forEach(btn => btn.classList.remove("active"));
-    button.classList.add("active");
-    renderMenu(category);
-}
-
-function addToCart(name) {
-    const product = products.find(item => item.name === name);
-    const existing = cart.find(item => item.name === name);
-
-    if (existing) {
-        existing.qty++;
-    } else {
-        cart.push({...product, qty: 1});
-    }
-
-    updateCart();
-}
-
-function removeFromCart(name) {
-    cart = cart.filter(item => item.name !== name);
-    updateCart();
-}
-
-function updateCart() {
-    const count = cart.reduce((sum, item) => sum + item.qty, 0);
-    const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
-
-    document.getElementById("cartCount").innerText = count;
-    document.getElementById("cartTotal").innerText = total;
-
-    const details = document.getElementById("cartDetails");
-    details.innerHTML = "";
-
-    if (cart.length > 0) {
-        details.style.display = "block";
-        cart.forEach(item => {
-            details.innerHTML += `
-                <div class="cart-line">
-                    <span>${item.qty}× ${item.name}</span>
-                    <span>${item.qty * item.price} Kč 
-                    <button class="remove" onclick="removeFromCart('${item.name}')">✕</button></span>
-                </div>
-            `;
-        });
-    } else {
-        details.style.display = "none";
-    }
-}
-
-function sendOrder() {
-    if (cart.length === 0) {
-        alert("Košík je prázdný.");
-        return;
-    }
-
-    const name = document.getElementById("customerName").value;
-    const phone = document.getElementById("customerPhone").value;
-    const note = document.getElementById("customerNote").value;
-
-    let message = "Dobrý den, chci objednat ze SushiBoxPils:%0A%0A";
-
-    cart.forEach(item => {
-        message += `${item.qty}× ${item.name} - ${item.qty * item.price} Kč%0A`;
-    });
-
-    const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
-
-    message += `%0ACelkem: ${total} Kč%0A`;
-    message += `%0AJméno: ${name || "-"}%0A`;
-    message += `Telefon: ${phone || "-"}%0A`;
-    message += `Poznámka: ${note || "-"}%0A`;
-
-    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
-}
-
-renderMenu();
+});
 </script>
 
 </body>
