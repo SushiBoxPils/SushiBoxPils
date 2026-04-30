@@ -9,13 +9,14 @@
 body{font-family:Arial;background:#070707;color:white;margin:0;padding:20px}
 #loginBox{max-width:400px;margin:100px auto;background:#111;padding:25px;border-radius:15px;text-align:center}
 #adminPanel{display:none}
-input,textarea,select,button{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #333;background:#111;color:white}
+input,textarea,select,button{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #333;background:#111;color:white;box-sizing:border-box}
 button{background:#df1f2d;font-weight:bold;cursor:pointer}
 .item,.order{border:1px solid #444;border-radius:14px;padding:15px;margin:14px 0;background:#111}
 .item img,#preview{width:100%;max-height:220px;object-fit:cover;border-radius:10px}
 .delete{background:#444}
 .upload{background:#c9974c;color:black}
 .logout{background:#555}
+.notice{background:#181818;border:1px solid #333;padding:12px;border-radius:10px;margin:12px 0;color:#ddd}
 </style>
 </head>
 
@@ -32,6 +33,10 @@ button{background:#df1f2d;font-weight:bold;cursor:pointer}
 
 <h1>Admin SushiBoxPils</h1>
 <button class="logout" onclick="logout()">Odhlásit</button>
+
+<div class="notice">
+  🔔 Po přihlášení klikni jednou na <b>Zapnout alarm</b>. Zvuk potom zazní jen při nové objednávce.
+</div>
 
 <button onclick="enableSound()">🔔 Zapnout alarm</button>
 
@@ -98,11 +103,15 @@ let lastOrderCount = 0;
 window.enableSound = () => {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   soundEnabled = true;
-  playAlarmSound();
-  alert("Alarm zapnut.");
+
+  // test ngắn 1 tiếng thôi, không lặp
+  playBeep(900,0,0.15);
+  alert("Alarm zapnut. Teď bude zvuk jen při nové objednávce.");
 };
 
 function playBeep(freq, start, duration){
+  if(!audioCtx) return;
+
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
@@ -110,7 +119,7 @@ function playBeep(freq, start, duration){
   osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
 
   gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + start);
-  gain.gain.exponentialRampToValueAtTime(0.5, audioCtx.currentTime + start + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.45, audioCtx.currentTime + start + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + start + duration);
 
   osc.connect(gain);
@@ -121,18 +130,21 @@ function playBeep(freq, start, duration){
 }
 
 function playAlarmSound(){
-  if(!soundEnabled) return;
+  if(!soundEnabled || !audioCtx) return;
 
+  // kêu khoảng 2.3 giây rồi tự dừng
   playBeep(900,0,0.25);
   playBeep(900,0.35,0.25);
-  playBeep(1200,0.7,0.3);
+  playBeep(1200,0.70,0.30);
 
-  setTimeout(()=>playAlarmSound(),2000);
+  playBeep(900,1.30,0.25);
+  playBeep(900,1.65,0.25);
+  playBeep(1200,2.00,0.30);
 }
 
 function vibratePhone(){
   if(navigator.vibrate){
-    navigator.vibrate([800,200,800,200,1200]);
+    navigator.vibrate([700,200,700,200,900]);
   }
 }
 
@@ -178,34 +190,53 @@ window.uploadImage = async () => {
     preview.src=data.data.url;
     preview.style.display="block";
     uploadStatus.innerText="OK";
+  } else {
+    uploadStatus.innerText="Chyba uploadu";
   }
 };
 
 addBtn.onclick = async ()=>{
-  if(!name.value || !price.value) return alert("Vyplň");
+  if(!name.value || !price.value) return alert("Vyplň název a cenu");
 
   await addDoc(productsRef,{
     name:name.value,
+    category:category.value,
     desc:desc.value,
     price:Number(price.value),
     img:img.value,
     createdAt:serverTimestamp()
   });
 
-  name.value=desc.value=price.value=img.value="";
+  name.value="";
+  desc.value="";
+  price.value="";
+  img.value="";
+  fileInput.value="";
   preview.style.display="none";
+  uploadStatus.innerText="";
+  alert("Jídlo přidáno.");
 };
 
 window.removeProduct = async id=>{
-  await deleteDoc(doc(db,"products",id));
+  if(confirm("Opravdu smazat jídlo?")){
+    await deleteDoc(doc(db,"products",id));
+  }
 };
 
 window.deleteOrder = async id=>{
-  await deleteDoc(doc(db,"orders",id));
+  if(confirm("Opravdu smazat objednávku?")){
+    await deleteDoc(doc(db,"orders",id));
+  }
 };
 
 onSnapshot(productsRef,snap=>{
   list.innerHTML="";
+
+  if(snap.empty){
+    list.innerHTML="<p>Zatím žádné jídlo.</p>";
+    return;
+  }
+
   snap.forEach(d=>{
     const i=d.data();
     list.innerHTML+=`
@@ -214,7 +245,7 @@ onSnapshot(productsRef,snap=>{
       <h3>${i.name}</h3>
       <p>${i.desc||""}</p>
       <b>${i.price} Kč</b>
-      <button onclick="removeProduct('${d.id}')">Smazat</button>
+      <button class="delete" onclick="removeProduct('${d.id}')">Smazat</button>
     </div>`;
   });
 });
@@ -228,22 +259,33 @@ onSnapshot(ordersRef,snap=>{
   }else if(snap.size>lastOrderCount){
     notifyNewOrder();
     lastOrderCount=snap.size;
+  }else{
+    lastOrderCount=snap.size;
+  }
+
+  if(snap.empty){
+    ordersList.innerHTML="<p>Zatím žádné objednávky.</p>";
+    return;
   }
 
   snap.forEach(d=>{
     const o=d.data();
     let items="";
     o.items?.forEach(i=>{
-      items+=`<p>${i.qty}× ${i.name}</p>`;
+      items+=`<p>${i.qty}× ${i.name} — ${i.lineTotal || (i.qty*i.price)} Kč</p>`;
     });
 
     ordersList.innerHTML+=`
     <div class="order">
       <h3>Objednávka</h3>
-      <p>${o.customerName||""}</p>
+      <p><b>Jméno:</b> ${o.customerName || "-"}</p>
+      <p><b>Telefon:</b> ${o.customerPhone || "-"}</p>
+      <p><b>Poznámka:</b> ${o.customerNote || "-"}</p>
+      <hr>
       ${items}
-      <b>${o.total} Kč</b>
-      <button onclick="deleteOrder('${d.id}')">Smazat</button>
+      <hr>
+      <b>Celkem: ${o.total || 0} Kč</b>
+      <button class="delete" onclick="deleteOrder('${d.id}')">Smazat objednávku</button>
     </div>`;
   });
 });
