@@ -174,7 +174,7 @@ function notifyNewOrder(){
 
 window.login = async () => {
   try{
-    await signInWithEmailAndPassword(auth, email.value, password.value);
+    await signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value);
   }catch{
     alert("Chyba loginu");
   }
@@ -186,15 +186,15 @@ window.logout = async () => {
 };
 
 onAuthStateChanged(auth, (user)=>{
-  loginBox.style.display = user ? "none":"block";
-  adminPanel.style.display = user ? "block":"none";
+  document.getElementById("loginBox").style.display = user ? "none":"block";
+  document.getElementById("adminPanel").style.display = user ? "block":"none";
 });
 
 window.uploadImage = async () => {
-  const file = fileInput.files[0];
+  const file = document.getElementById("fileInput").files[0];
   if(!file){ alert("Vyber obrázek"); return; }
 
-  uploadStatus.innerText="Nahrávám...";
+  document.getElementById("uploadStatus").innerText="Nahrávám...";
 
   const formData=new FormData();
   formData.append("image",file);
@@ -207,34 +207,43 @@ window.uploadImage = async () => {
   const data=await res.json();
 
   if(data.success){
-    img.value=data.data.url;
-    preview.src=data.data.url;
-    preview.style.display="block";
-    uploadStatus.innerText="OK";
+    document.getElementById("img").value=data.data.url;
+    document.getElementById("preview").src=data.data.url;
+    document.getElementById("preview").style.display="block";
+    document.getElementById("uploadStatus").innerText="OK";
   } else {
-    uploadStatus.innerText="Chyba uploadu";
+    document.getElementById("uploadStatus").innerText="Chyba uploadu";
   }
 };
 
-addBtn.onclick = async ()=>{
-  if(!name.value || !price.value) return alert("Vyplň název a cenu");
+document.getElementById("addBtn").onclick = async ()=>{
+  const productName = document.getElementById("name").value.trim();
+  const productCategory = document.getElementById("category").value;
+  const productDesc = document.getElementById("desc").value.trim();
+  const productPrice = Number(document.getElementById("price").value);
+  const productImg = document.getElementById("img").value.trim();
+
+  if(!productName || !productPrice){
+    alert("Vyplň název a cenu");
+    return;
+  }
 
   await addDoc(productsRef,{
-    name:name.value,
-    category:category.value,
-    desc:desc.value,
-    price:Number(price.value),
-    img:img.value,
-    createdAt:serverTimestamp()
+    name: productName,
+    category: productCategory,
+    desc: productDesc,
+    price: productPrice,
+    img: productImg,
+    createdAt: serverTimestamp()
   });
 
-  name.value="";
-  desc.value="";
-  price.value="";
-  img.value="";
-  fileInput.value="";
-  preview.style.display="none";
-  uploadStatus.innerText="";
+  document.getElementById("name").value="";
+  document.getElementById("desc").value="";
+  document.getElementById("price").value="";
+  document.getElementById("img").value="";
+  document.getElementById("fileInput").value="";
+  document.getElementById("preview").style.display="none";
+  document.getElementById("uploadStatus").innerText="";
   alert("Jídlo přidáno.");
 };
 
@@ -262,6 +271,7 @@ window.deleteOrder = async id=>{
 };
 
 onSnapshot(productsRef,snap=>{
+  const list = document.getElementById("list");
   list.innerHTML="";
 
   if(snap.empty){
@@ -283,6 +293,7 @@ onSnapshot(productsRef,snap=>{
 });
 
 onSnapshot(ordersRef,snap=>{
+  const ordersList = document.getElementById("ordersList");
   ordersList.innerHTML="";
 
   if(firstOrdersLoad){
