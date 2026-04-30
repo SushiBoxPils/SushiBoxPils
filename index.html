@@ -64,15 +64,270 @@ footer{padding:28px;text-align:center;color:#aaa;border-top:1px solid #222;backg
 .cart-line{display:flex;justify-content:space-between;border-bottom:1px solid #222;padding:7px 0;font-size:14px}
 .cart-line button{background:transparent;color:#ff5555;border:none;font-weight:bold}
 .cart button.send{width:100%;padding:14px;background:#df1f2d;color:white;border:none;border-radius:8px;font-weight:700}
+
+@media(max-width:768px){
+header{height:auto;flex-direction:column;gap:12px;padding:15px}
+.logo-wrap img{width:110px}
+nav{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+nav a{font-size:12px;margin:0}
+.header-actions{flex-direction:column;width:100%}
+.header-actions .btn{width:100%;text-align:center}
+.hero{min-height:540px;padding:40px 20px;text-align:center;background-position:center}
+.hero h1{font-size:38px}
+.slogan{font-size:12px;line-height:1.6}
+.hero p{font-size:15px}
+.hero-buttons{flex-direction:column}
+.features-small{justify-content:center}
+.cards-section{padding:30px 18px 50px}
+.service-cards,.footer-info{grid-template-columns:1fr}
+.menu-grid{grid-template-columns:1fr 1fr;gap:12px}
+.menu-card img{height:120px}
+.menu-card h3{font-size:13px}
+.menu-card p{font-size:12px}
+.price{font-size:18px}
+}
+@media(max-width:420px){.menu-grid{grid-template-columns:1fr}.hero h1{font-size:34px}}
 </style>
 </head>
 
 <body>
-<!-- PHẦN HTML GIỮ NGUYÊN NHƯ BẠN ĐÃ GỬI -->
-<!-- (do quá dài nên phần còn lại bạn giữ nguyên bản bạn đang dùng) -->
+
+<header>
+  <div class="logo-wrap"><img src="logo.png" alt="SushiBoxPils Logo"></div>
+  <nav>
+    <a href="#">Domů</a>
+    <a href="#menu">Menu</a>
+    <a href="#catering">Catering</a>
+    <a href="#onas">O nás</a>
+    <a href="#kontakt">Kontakt</a>
+  </nav>
+  <div class="header-actions">
+    <a class="btn btn-border" href="tel:+420777456789">☎ 777 456 789</a>
+    <a class="btn btn-red" href="#menu">Objednat</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>Sushi<span>Box</span>Pils</h1>
+    <div class="slogan">ČERSTVÉ SUSHI PRO KAŽDOU PŘÍLEŽITOST</div>
+    <p>Prémiové sushi z těch nejčerstvějších surovin.<br>Takeaway, oslavy, narozeniny i firemní akce.</p>
+    <div class="hero-buttons">
+      <a class="btn btn-red" href="tel:+420777456789">☎ Zavolat</a>
+      <a class="btn btn-border" href="https://wa.me/420777456789">WhatsApp</a>
+    </div>
+    <div class="features-small">
+      <div>🍃 Čerstvé suroviny</div>
+      <div>👨‍🍳 Ruční příprava</div>
+      <div>🚚 Rychlé vyzvednutí</div>
+    </div>
+  </div>
+</section>
+
+<section class="cards-section" id="catering">
+  <div class="service-cards">
+    <div class="service-card"><div class="icon">🛍️</div><h3>Takeaway</h3><p>Objednejte online a vyzvedněte si na provozovně.</p></div>
+    <div class="service-card"><div class="icon">🎂</div><h3>Narozeniny</h3><p>Sushi boxy na oslavy a narozeninové party na míru.</p></div>
+    <div class="service-card"><div class="icon">🍽️</div><h3>Catering</h3><p>Firemní akce, večírky a speciální události.</p></div>
+    <div class="service-card"><div class="icon">🎁</div><h3>Party Boxy</h3><p>Výhodné sety různých velikostí pro každou příležitost.</p></div>
+  </div>
+
+  <div class="section-title" id="menu">
+    <h2>Naše menu</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="menu-grid" id="menuGrid">Načítám menu...</div>
+
+  <div class="customer-box">
+    <h3>Údaje k objednávce</h3>
+    <input id="customerName" placeholder="Jméno">
+    <input id="customerPhone" placeholder="Telefon">
+    <textarea id="customerNote" rows="3" placeholder="Poznámka: čas vyzvednutí, alergie..."></textarea>
+  </div>
+
+  <div class="footer-info" id="kontakt">
+    <div class="info-box">
+      <div class="info-icon">📍</div>
+      <h3>Kde nás najdete</h3>
+      <p>Riegrova 123/45<br>301 00 Plzeň</p>
+    </div>
+    <div class="info-box">
+      <div class="info-icon">🕒</div>
+      <h3>Otevírací doba</h3>
+      <p>Pondělí – Pátek: 10:30 – 21:00</p>
+      <p>Sobota: 11:00 – 21:00</p>
+      <p>Neděle: 11:00 – 20:00</p>
+    </div>
+    <div class="info-box">
+      <div class="info-icon">📞</div>
+      <h3>Kontakt</h3>
+      <p>☎ 777 456 789</p>
+      <p>✉ info@sushiboxpils.cz</p>
+      <p>📷 @sushiboxpils</p>
+    </div>
+    <div class="info-box" id="onas">
+      <div class="info-icon">☆</div>
+      <h3>Proč SushiBoxPils?</h3>
+      <p>✓ Čerstvé a kvalitní suroviny</p>
+      <p>✓ Moderní sushi boxy</p>
+      <p>✓ Rychlá příprava a vyzvednutí</p>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 SushiBoxPils – Všechna práva vyhrazena.</footer>
+
+<div class="cart">
+  <div class="cart-details" id="cartDetails"></div>
+  <div class="cart-top">
+    <strong>Košík: <span id="cartCount">0</span> ks</strong>
+    <strong><span id="cartTotal">0</span> Kč</strong>
+  </div>
+  <button class="send" onclick="sendOrder()">Uložit objednávku + poslat WhatsApp</button>
+</div>
 
 <script type="module">
-/* GIỮ NGUYÊN SCRIPT CỦA BẠN */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCECFacCTVZpt9EM5HyDF98cVSrJNrIw9A",
+  authDomain: "sushiboxpils.firebaseapp.com",
+  projectId: "sushiboxpils",
+  storageBucket: "sushiboxpils.firebasestorage.app",
+  messagingSenderId: "296051969254",
+  appId: "1:296051969254:web:cce432ad7060cbc32a3f27"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const menuGrid = document.getElementById("menuGrid");
+
+let products = [];
+let cart = [];
+
+onSnapshot(collection(db,"products"), (snapshot)=>{
+  products = [];
+  menuGrid.innerHTML = "";
+
+  if(snapshot.empty){
+    menuGrid.innerHTML = "<p>Zatím není žádné menu. Přidejte jídlo v adminu.</p>";
+    return;
+  }
+
+  snapshot.forEach(docSnap=>{
+    const item = { id: docSnap.id, ...docSnap.data() };
+    products.push(item);
+
+    menuGrid.innerHTML += `
+      <div class="menu-card">
+        ${item.img ? `<img src="${item.img}" alt="${item.name}">` : ""}
+        <div class="menu-card-content">
+          <h3>${item.name}</h3>
+          <p>${item.desc || ""}</p>
+          <div class="price">${item.price} Kč</div>
+          <button class="add-btn" onclick="addToCart('${item.id}')">Přidat</button>
+        </div>
+      </div>
+    `;
+  });
+});
+
+window.addToCart = (id) => {
+  const product = products.find(p => p.id === id);
+  if(!product) return;
+
+  const existing = cart.find(i => i.id === id);
+
+  if(existing){
+    existing.qty++;
+  }else{
+    cart.push({...product, qty:1});
+  }
+
+  updateCart();
+};
+
+window.removeFromCart = (id) => {
+  cart = cart.filter(i => i.id !== id);
+  updateCart();
+};
+
+function updateCart(){
+  const count = cart.reduce((s,i)=>s+i.qty,0);
+  const total = cart.reduce((s,i)=>s+i.qty*i.price,0);
+
+  document.getElementById("cartCount").innerText = count;
+  document.getElementById("cartTotal").innerText = total;
+
+  const details = document.getElementById("cartDetails");
+  details.innerHTML = "";
+
+  if(cart.length){
+    details.style.display = "block";
+    cart.forEach(item=>{
+      details.innerHTML += `
+        <div class="cart-line">
+          <span>${item.qty}× ${item.name}</span>
+          <span>${item.qty * item.price} Kč <button onclick="removeFromCart('${item.id}')">✕</button></span>
+        </div>
+      `;
+    });
+  }else{
+    details.style.display = "none";
+  }
+}
+
+window.sendOrder = async () => {
+  if(cart.length === 0){
+    alert("Košík je prázdný.");
+    return;
+  }
+
+  const name = document.getElementById("customerName").value || "-";
+  const phone = document.getElementById("customerPhone").value || "-";
+  const note = document.getElementById("customerNote").value || "-";
+  const total = cart.reduce((s,i)=>s+i.qty*i.price,0);
+
+  const orderData = {
+    customerName: name,
+    customerPhone: phone,
+    customerNote: note,
+    items: cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      qty: item.qty,
+      lineTotal: item.qty * item.price
+    })),
+    total: total,
+    status: "new",
+    createdAt: serverTimestamp()
+  };
+
+  await addDoc(collection(db, "orders"), orderData);
+
+  let msg = "Dobrý den, chci objednat ze SushiBoxPils:%0A%0A";
+  cart.forEach(item => {
+    msg += `${item.qty}× ${item.name} - ${item.qty * item.price} Kč%0A`;
+  });
+  msg += `%0ACelkem: ${total} Kč%0A`;
+  msg += `%0AJméno: ${name}%0A`;
+  msg += `Telefon: ${phone}%0A`;
+  msg += `Poznámka: ${note}`;
+
+  window.open("https://wa.me/420777456789?text=" + msg, "_blank");
+
+  cart = [];
+  updateCart();
+
+  document.getElementById("customerName").value = "";
+  document.getElementById("customerPhone").value = "";
+  document.getElementById("customerNote").value = "";
+
+  alert("Objednávka byla uložena a odeslána.");
+};
 </script>
 
 </body>
