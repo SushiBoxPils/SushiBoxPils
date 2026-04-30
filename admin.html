@@ -20,21 +20,23 @@ input,textarea,select{width:100%;padding:13px;margin:7px 0 12px;border-radius:10
 .stat{background:#111;border:1px solid #2b2b2b;border-radius:16px;padding:18px}
 .stat small{color:#aaa}
 .stat strong{display:block;font-size:28px;margin-top:8px;color:#c9974c}
-.layout{display:grid;grid-template-columns:360px 1fr;gap:18px}
 .panel{background:#101010;border:1px solid #2b2b2b;border-radius:18px;padding:18px}
 .notice{background:#181818;border:1px solid #333;padding:12px;border-radius:12px;margin-bottom:14px;color:#ddd}
 .upload{background:#c9974c;color:#000}
 .logout{background:#555}
 .confirm{background:#16a34a}
+.work{background:#ca8a04}
+.doneBtn{background:#2563eb}
 .delete{background:#444}
-.danger{background:#7f1d1d}
+.cancel{background:#555}
 .item,.order{border:1px solid #333;border-radius:16px;padding:14px;margin:12px 0;background:#151515}
 .item img,#preview{width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-top:8px}
-.order{border-color:#3a3a3a}
 .order.new{border-color:#df1f2d;background:#16090a}
-.order.confirmed{border-color:#16a34a}
+.order.preparing{border-color:#ca8a04}
+.order.done{border-color:#2563eb}
 .status{display:inline-block;padding:6px 10px;border-radius:20px;background:#7f1d1d;color:#fff;margin-bottom:10px;font-size:12px;font-weight:bold}
-.status.done{background:#14532d}
+.status.preparing{background:#92400e}
+.status.done{background:#1e3a8a}
 .orderHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .orderTotal{font-size:22px;color:#c9974c;font-weight:800}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
@@ -45,7 +47,6 @@ hr{border:0;border-top:1px solid #333;margin:12px 0}
 .hidden{display:none}
 @media(max-width:900px){
   .grid{grid-template-columns:1fr 1fr}
-  .layout{grid-template-columns:1fr}
   .topbar{flex-direction:column;align-items:stretch}
 }
 @media(max-width:520px){
@@ -77,20 +78,20 @@ hr{border:0;border-top:1px solid #333;margin:12px 0}
 <div class="container">
 
   <div class="notice">
-    🔔 Bấm <b>Zapnout alarm</b> một lần. Có đơn mới → chuông kêu liên tục. Bấm <b>Potvrdit objednávku</b> để tắt chuông.
+    Web khách và admin dùng chung Firebase. Menu lấy từ <b>products</b>, đơn hàng lưu vào <b>orders</b>.
   </div>
 
   <div class="grid">
     <div class="stat"><small>Doanh thu hôm nay</small><strong><span id="todayRevenue">0</span> Kč</strong></div>
     <div class="stat"><small>Đơn hôm nay</small><strong id="todayOrders">0</strong></div>
-    <div class="stat"><small>Đơn chưa xác nhận</small><strong id="newOrders">0</strong></div>
+    <div class="stat"><small>Đơn mới</small><strong id="newOrders">0</strong></div>
     <div class="stat"><small>Tổng doanh thu</small><strong><span id="totalRevenue">0</span> Kč</strong></div>
   </div>
 
   <div class="tabs">
     <button class="tab active" onclick="showTab('ordersTab', this)">Objednávky</button>
     <button class="tab" onclick="showTab('menuTab', this)">Menu</button>
-    <button class="tab" onclick="showTab('addTab', this)">Přidat jídlo</button>
+    <button class="tab" onclick="showTab('addTab', this)">Přidat / upravit jídlo</button>
   </div>
 
   <div id="ordersTab" class="panel">
@@ -104,7 +105,7 @@ hr{border:0;border-top:1px solid #333;margin:12px 0}
   </div>
 
   <div id="addTab" class="panel hidden">
-    <h2>Přidat jídlo</h2>
+    <h2 id="formTitle">Přidat jídlo</h2>
 
     <input id="name" placeholder="Název jídla">
 
@@ -127,6 +128,7 @@ hr{border:0;border-top:1px solid #333;margin:12px 0}
     <input id="img" placeholder="URL obrázku">
 
     <button id="addBtn">Přidat jídlo</button>
+    <button id="cancelEditBtn" class="cancel hidden" onclick="cancelEdit()">Zrušit úpravu</button>
   </div>
 
 </div>
@@ -134,7 +136,7 @@ hr{border:0;border-top:1px solid #333;margin:12px 0}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
@@ -154,12 +156,14 @@ const auth = getAuth(app);
 
 const productsRef = collection(db, "products");
 const ordersRef = collection(db, "orders");
+const ordersQuery = query(ordersRef, orderBy("createdAt", "desc"));
 
 let audioCtx = null;
 let soundEnabled = false;
 let firstOrdersLoad = true;
 let lastOrderCount = 0;
 let alarmInterval = null;
+let editingProductId = null;
 
 window.showTab = (tabId, btn)=>{
   document.querySelectorAll(".panel").forEach(p=>p.classList.add("hidden"));
@@ -193,15 +197,13 @@ function playBeep(freq, start, duration){
 function playAlarmSound(){
   if(!soundEnabled || !audioCtx) return;
   for(let i = 0; i < 15; i++){
-    const start = i * 0.35;
-    const freq = i % 2 === 0 ? 900 : 1200;
-    playBeep(freq, start, 0.18);
+    playBeep(i % 2 === 0 ? 900 : 1200, i * 0.35, 0.18);
   }
 }
 
 function vibratePhone(){
   if(navigator.vibrate){
-    navigator.vibrate([700,200,700,200,900,200,900]);
+    navigator.vibrate([700,200,700,200,900]);
   }
 }
 
@@ -229,7 +231,11 @@ function notifyNewOrder(){
 
 window.login = async () => {
   try{
-    await signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value);
+    await signInWithEmailAndPassword(
+      auth,
+      document.getElementById("email").value,
+      document.getElementById("password").value
+    );
   }catch{
     alert("Chyba loginu");
   }
@@ -271,6 +277,45 @@ window.uploadImage = async () => {
   }
 };
 
+function resetForm(){
+  editingProductId = null;
+  document.getElementById("formTitle").innerText="Přidat jídlo";
+  document.getElementById("addBtn").innerText="Přidat jídlo";
+  document.getElementById("cancelEditBtn").classList.add("hidden");
+
+  document.getElementById("name").value="";
+  document.getElementById("category").value="roll";
+  document.getElementById("desc").value="";
+  document.getElementById("price").value="";
+  document.getElementById("img").value="";
+  document.getElementById("fileInput").value="";
+  document.getElementById("preview").style.display="none";
+  document.getElementById("uploadStatus").innerText="";
+}
+
+window.cancelEdit = resetForm;
+
+window.editProduct = (id, name, category, desc, price, img)=>{
+  editingProductId = id;
+
+  document.getElementById("formTitle").innerText="Upravit jídlo";
+  document.getElementById("addBtn").innerText="Uložit změny";
+  document.getElementById("cancelEditBtn").classList.remove("hidden");
+
+  document.getElementById("name").value=name || "";
+  document.getElementById("category").value=category || "roll";
+  document.getElementById("desc").value=desc || "";
+  document.getElementById("price").value=price || "";
+  document.getElementById("img").value=img || "";
+
+  if(img){
+    document.getElementById("preview").src=img;
+    document.getElementById("preview").style.display="block";
+  }
+
+  document.querySelector('[onclick*="addTab"]').click();
+};
+
 document.getElementById("addBtn").onclick = async ()=>{
   const productName = document.getElementById("name").value.trim();
   const productCategory = document.getElementById("category").value;
@@ -283,23 +328,27 @@ document.getElementById("addBtn").onclick = async ()=>{
     return;
   }
 
-  await addDoc(productsRef,{
+  const data = {
     name: productName,
     category: productCategory,
     desc: productDesc,
     price: productPrice,
     img: productImg,
-    createdAt: serverTimestamp()
-  });
+    updatedAt: serverTimestamp()
+  };
 
-  document.getElementById("name").value="";
-  document.getElementById("desc").value="";
-  document.getElementById("price").value="";
-  document.getElementById("img").value="";
-  document.getElementById("fileInput").value="";
-  document.getElementById("preview").style.display="none";
-  document.getElementById("uploadStatus").innerText="";
-  alert("Jídlo přidáno.");
+  if(editingProductId){
+    await updateDoc(doc(db,"products",editingProductId), data);
+    alert("Jídlo upraveno.");
+  }else{
+    await addDoc(productsRef,{
+      ...data,
+      createdAt: serverTimestamp()
+    });
+    alert("Jídlo přidáno.");
+  }
+
+  resetForm();
 };
 
 window.removeProduct = async id=>{
@@ -308,12 +357,15 @@ window.removeProduct = async id=>{
   }
 };
 
-window.confirmOrder = async id=>{
+window.setOrderStatus = async (id,status)=>{
   await updateDoc(doc(db,"orders",id),{
-    status:"confirmed",
-    confirmedAt:serverTimestamp()
+    status:status,
+    updatedAt:serverTimestamp()
   });
-  stopAlarm();
+
+  if(status !== "new"){
+    stopAlarm();
+  }
 };
 
 window.deleteOrder = async id=>{
@@ -332,6 +384,10 @@ function isToday(createdAt){
          d.getDate()===now.getDate();
 }
 
+function esc(str){
+  return String(str || "").replace(/'/g,"&#39;").replace(/"/g,"&quot;");
+}
+
 onSnapshot(productsRef,snap=>{
   const list = document.getElementById("list");
   list.innerHTML="";
@@ -348,13 +404,17 @@ onSnapshot(productsRef,snap=>{
       ${i.img?`<img src="${i.img}">`:""}
       <h3>${i.name}</h3>
       <p>${i.desc||""}</p>
+      <p><b>Kategorie:</b> ${i.category || "-"}</p>
       <b>${i.price} Kč</b>
-      <button class="delete" onclick="removeProduct('${d.id}')">Smazat</button>
+      <div class="actions">
+        <button class="work" onclick="editProduct('${d.id}','${esc(i.name)}','${esc(i.category)}','${esc(i.desc)}','${i.price}','${esc(i.img)}')">Upravit</button>
+        <button class="delete" onclick="removeProduct('${d.id}')">Smazat</button>
+      </div>
     </div>`;
   });
 });
 
-onSnapshot(ordersRef,snap=>{
+onSnapshot(ordersQuery,snap=>{
   const ordersList = document.getElementById("ordersList");
   ordersList.innerHTML="";
 
@@ -381,27 +441,31 @@ onSnapshot(ordersRef,snap=>{
   snap.forEach(d=>{
     const o=d.data();
     const total = Number(o.total || 0);
-    const isConfirmed = o.status === "confirmed";
+    const status = o.status || "new";
 
     totalRevenue += total;
+
     if(isToday(o.createdAt)){
       todayRevenue += total;
       todayOrders += 1;
     }
-    if(!isConfirmed) newOrders += 1;
+
+    if(status === "new") newOrders += 1;
 
     let items="";
     o.items?.forEach(i=>{
       items+=`<p>${i.qty}× ${i.name} — ${i.lineTotal || (i.qty*i.price)} Kč</p>`;
     });
 
+    let statusText = "NOVÁ OBJEDNÁVKA";
+    if(status === "preparing") statusText = "PŘIPRAVUJE SE";
+    if(status === "done") statusText = "HOTOVO";
+
     ordersList.innerHTML+=`
-    <div class="order ${isConfirmed ? "confirmed" : "new"}">
+    <div class="order ${status}">
       <div class="orderHead">
         <div>
-          <span class="status ${isConfirmed ? "done" : ""}">
-            ${isConfirmed ? "POTVRZENO" : "NOVÁ OBJEDNÁVKA"}
-          </span>
+          <span class="status ${status}">${statusText}</span>
           <h3>Objednávka</h3>
         </div>
         <div class="orderTotal">${total} Kč</div>
@@ -415,8 +479,10 @@ onSnapshot(ordersRef,snap=>{
       <hr>
 
       <div class="actions">
-        ${!isConfirmed ? `<button class="confirm" onclick="confirmOrder('${d.id}')">Potvrdit objednávku</button>` : ""}
-        <button class="delete" onclick="deleteOrder('${d.id}')">Smazat objednávku</button>
+        <button class="confirm" onclick="setOrderStatus('${d.id}','new')">Mới</button>
+        <button class="work" onclick="setOrderStatus('${d.id}','preparing')">Đang làm</button>
+        <button class="doneBtn" onclick="setOrderStatus('${d.id}','done')">Xong</button>
+        <button class="delete" onclick="deleteOrder('${d.id}')">Smazat</button>
       </div>
     </div>`;
   });
